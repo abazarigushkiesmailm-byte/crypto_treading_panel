@@ -1,1 +1,0 @@
-treading_panel_coins&gold
