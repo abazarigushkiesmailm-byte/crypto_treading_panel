@@ -1,0 +1,1624 @@
+<!DOCTYPE html>
+<html lang="en" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Trading Station Pro | Esi Elite </title>
+    <script src="https://unpkg.com/lightweight-charts@3.8.0/dist/lightweight-charts.standalone.production.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-main: #0b121a;
+            --bg-card: rgba(1, 17, 66, 0.98);
+            --border-color: #300026;
+            --accent-color: rgba(6, 2, 254, 0.564);
+            --text-primary: #fee500;
+            --success: #00fe04;
+            --danger: #f30814;
+            --cube-size: 130px;
+            --half-size: 70px;
+            --color-front: #26fc00;
+            --color-back: #ff9100;
+            --color-right: #fff200;
+            --color-left: #f99602;
+            --color-top: #e14ef4;
+            --color-bottom: #31c6f8;
+            --bg-dark: #c0810b;
+            --pistachio: rgba(89, 213, 6, 0.34);
+            --royal-purple: rgba(116, 18, 213, 0.3);
+            --gold-main: #ffae00;
+            --up-green: #00ff88;
+            --down-red: #ff4d4d;
+            --none-blue: #00d2ff;
+        }
+
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-primary);
+            font-family: Arial, Tahoma, sans-serif;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+            touch-action: auto;
+        }
+
+        body:fullscreen .top-widget-bar {
+            display: none;
+        }
+
+        body:fullscreen #chart-container {
+            height: 100vh;
+        }
+
+        body {
+            background: radial-gradient(circle at top left, #0b121a, #000000);
+            display: flex;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            background: radial-gradient(circle at center, #15181e 0%, #080a0f 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 80vh;
+            margin: 0;
+            font-family: 'Segoe UI', sans-serif;
+            color: white;
+            overflow-x: hidden;
+        }
+
+        #cube-container {
+            position: absolute;
+
+            top: 30px;
+            right: 235px;
+            perspective: 1000px;
+            z-index: 120;
+            pointer-events: none;
+            transform: scale(0.6);
+            /* کوچک‌تر شدن مکعب برای اشغال فضای کمتر */
+        }
+
+        .cube {
+            width: var(--cube-size);
+            height: var(--cube-size);
+            position: absolute;
+            transform-style: preserve-3d;
+            animation: rotate 25s infinite linear;
+        }
+
+        @keyframes rotate {
+            0% {
+                transform: rotateX(0deg) rotateY(0deg);
+            }
+
+            25% {
+                transform: rotateX(90deg) rotateY(90deg);
+            }
+
+            50% {
+                transform: rotateX(180deg) rotateY(180deg);
+            }
+
+            75% {
+                transform: rotateX(270deg) rotateY(270deg);
+            }
+
+            100% {
+                transform: rotateX(360deg) rotateY(360deg);
+            }
+
+        }
+
+        .face {
+            position: absolute;
+            width: var(--cube-size);
+            height: var(--cube-size);
+            background: rgba(190, 6, 251, 0);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            transform: scale(0.5);
+            backdrop-filter: blur(4px);
+            border-radius: 15px;
+            backface-visibility: visible;
+        }
+
+        .front {
+            transform: translateZ(var(--half-size));
+            border-color: var(--color-front);
+            box-shadow: 0 0 8px var(--color-front);
+        }
+
+        .back {
+            transform: rotateY(180deg) translateZ(var(--half-size));
+            border-color: var(--color-back);
+            box-shadow: 0 0 8px var(--color-back);
+        }
+
+        .right {
+            transform: rotateY(90deg) translateZ(var(--half-size));
+            border-color: var(--color-right);
+            box-shadow: 0 0 8px var(--color-right);
+        }
+
+        .left {
+            transform: rotateY(-90deg) translateZ(var(--half-size));
+            border-color: var(--color-left);
+            box-shadow: 0 0 8px var(--color-left);
+        }
+
+        .top {
+            transform: rotateX(90deg) translateZ(var(--half-size));
+            border-color: var(--color-top);
+            box-shadow: 0 0 8px var(--color-top);
+        }
+
+        .bottom {
+            transform: rotateX(-90deg) translateZ(var(--half-size));
+            border-color: var(--color-bottom);
+            box-shadow: 0 0 8px var(--color-bottom);
+        }
+
+        .cube .label {
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 5px;
+            text-align: center;
+        }
+
+        .cube .value {
+            font-size: 24px;
+            font-weight: 1000;
+            text-align: center;
+        }
+
+        .cube .details {
+            font-size: 14px;
+            opacity: 0.7;
+        }
+
+        /*تنظیم کننده رنگ اختصاصی متن وجه ها*/
+        .front .label,
+        .front .value {
+            color: var(--color-front);
+        }
+
+        .right .label,
+        .right .value {
+            color: var(--color-right);
+        }
+
+        .back .label,
+        .back .value {
+            color: var(--color-back);
+        }
+
+        .left .label,
+        .left .value {
+            color: var(--color-left);
+        }
+
+        .top .label,
+        .top .value {
+            color: var(--color-top);
+        }
+
+        .bottom .label,
+        .bottom .value {
+            color: var(--color-bottom);
+        }
+
+        /* دکمه شناور برای باز کردن پنل */
+
+        .toggle-panel-btn {
+            position: fixed;
+            top: 5px;
+            left: 175px;
+            z-index: 1000;
+            background: linear-gradient(185deg, rgba(87, 192, 2, 0.379), rgba(118, 3, 212, 0.664));
+            color: rgb(246, 148, 0);
+            border: none;
+            padding: 2px 5px;
+            border-radius: 50px;
+            font-weight: 900;
+            font-size: 0.85rem;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(36, 3, 225, 0.44), inset 0 0 10px rgba(185, 1, 1, 0.489);
+            transition: all 0.3s ease;
+            width: 45px;
+            /* عرض اولیه کوچک برای حالت عادی */
+            height: 45px;
+            /* ارتفاع ثابت برای حفظ شکل دایره‌ای */
+
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+        }
+
+        .toggle-panel-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(0, 12, 234, 0.708);
+            height: 50px;
+            width: 100px;
+            background: linear-gradient(135deg, rgba(73, 106, 0, 0.775), rgba(104, 0, 97, 0.814));
+
+
+        }
+
+
+        /* دکمه بستن داخل پنل */
+        .close-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+        }
+
+        .close-btn:hover {
+            background: rgba(255, 45, 45, 0.4);
+        }
+
+        /* تبدیل پنل به حالت کشویی مخفی */
+        .cyber-panel {
+            background: rgba(8, 6, 31, 0.907);
+            width: 90%;
+            max-width: 410px;
+            padding: 15px;
+            right: 120px;
+            border-radius: 55px 0 0 55px;
+            /* گرد کردن لبه‌های سمت راست وقتی از چپ باز می‌شود */
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: -10px 0 35px rgba(101, 36, 0, 0.742);
+
+            /* ویژگی‌های کشویی */
+            position: fixed;
+            top: 0;
+            right: -480px;
+            /* پنهان شدن در خارج از صفحه */
+            height: auto;
+            box-sizing: border-box;
+            overflow-y: auto;
+            transition: right 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            z-index: 999;
+        }
+
+        /* کلاسی که با جاوااسکریپت اضافه می‌شود تا پنل باز شود */
+        .cyber-panel.open {
+            right: 0;
+            margin-right: 20px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2px;
+            gap: 1px;
+        }
+
+        .live-tag {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 900;
+            font-size: 0.8rem;
+
+        }
+
+        #status-dot {
+            width: 10px;
+            height: 10px;
+            background: #38ef00;
+            border-radius: 50%;
+            box-shadow: 0 0 15px #020154;
+            animation: pulse 1.5s infinite;
+
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.4;
+            }
+        }
+
+        .title {
+            color: var(--gold-main);
+            font-weight: 900;
+            font-size: 0.85rem;
+            flex-grow: 1;
+            text-align: left;
+        }
+
+        .section-label {
+            font-size: 0.6rem;
+            color: #2113ec;
+            margin: 18px 0 10px;
+            font-weight: 900;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .section-label::after {
+            content: "";
+            width: 1px;
+            height: 12px;
+            background: #93c572;
+            border-radius: 4px;
+            box-shadow: 0 0 8px rgba(147, 197, 114, 0.5);
+        }
+
+        /* royal card style inspired by royale game ui */
+
+        .royale-card {
+            background: linear-gradient(to left, var(--pistachio), var(--royal-purple));
+            border-radius: 24px;
+            padding: 10px 4px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-bottom: 3px solid rgba(0, 0, 0, 0.4);
+            box-shadow:
+                inset 0 2px 4px rgba(255, 255, 255, 0.15),
+                0 6px 15px rgba(0, 0, 0, 0.3);
+            transition: all 0.1s ease;
+            cursor: pointer;
+        }
+
+        .royale-card:active {
+            transform: translateY(2px);
+            border-bottom-width: 1px;
+            box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.1);
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .label {
+            font-size: 0.5rem;
+            color: rgb(255, 162, 2);
+            font-weight: 800;
+            margin-bottom: 2px;
+            text-transform: uppercase;
+        }
+
+        .value {
+            font-size: 0.95rem;
+            font-weight: 900;
+            color: #fff;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+        }
+
+        .change {
+            font-size: 0.6rem;
+            font-weight: 800;
+            margin-top: 4px;
+        }
+
+        .up {
+            color: var(--up-green);
+        }
+
+        .down {
+            color: var(--down-red);
+        }
+
+        .gold-v {
+            color: var(--gold-main);
+        }
+
+        @media screen and (orientation: landscape) and (max-height: 550px) {
+            body {
+                align-items: flex-start;
+                padding: 10px;
+            }
+
+            .cyber-panel {
+                max-width: 850px;
+                width: 98%;
+                display: grid;
+                gap: 15px;
+                padding: 10px;
+                border-radius: 25px;
+            }
+
+            .header,
+            .footer {
+                grid-column: span 2;
+            }
+
+            .section-label {
+                margin: 5px 0;
+            }
+
+            .royale-card {
+                flex-direction: row;
+                justify-content: space-between;
+                padding: 6px 12px;
+                border-radius: 12px;
+                border-bottom-width: 2px;
+            }
+
+            .label {
+                margin-bottom: 0;
+                font-size: 0.45rem;
+                width: 35%;
+                text-align: right;
+            }
+
+            .value {
+                font-size: 0.15rem;
+                width: 40%;
+                text-align: center;
+            }
+
+            .change {
+                margin-bottom: 0;
+                font-size: 0.45rem;
+                width: 25%;
+                text-align: left;
+            }
+
+            .grid-3,
+            .grid-2 {
+                gap: 6px;
+            }
+        }
+
+
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 0.45rem;
+            color: rgba(255, 255, 255, 0.1);
+            letter-spacing: 2px;
+        }
+
+        .main-content {
+            display: flex;
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+            width: 100%;
+            height: scale(100vh - 45px);
+        }
+
+        #chart-container {
+            flex-grow: 1;
+            position: absolute;
+            direction: ltr;
+            width: 100%;
+            height: 100%;
+            cursor: crosshair;
+        }
+
+        .right-info-panel {
+            position: absolute;
+            right: 10px;
+            top: 5px;
+            z-index: 110;
+            width: auto;
+            max-width: 180px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            /* فاصله بین هر کارت */
+            pointer-events: none;
+        }
+
+        .info-card {
+            background: linear-gradient(135deg, rgba(162, 1, 190, 0.481), rgba(16, 165, 2, 0.525));
+            /* گرادینت شیشه‌ای مشابه تصویر */
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: none;
+            /* حذف بوردر ساده */
+            padding: 10px 16px;
+            border-radius: 12px;
+            /* لبه‌های گرد مشابه بازی */
+            min-width: unset;
+            width: 100%;
+            padding: 6px 10px;
+            text-align: center;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 6px;
+
+
+            /* --- جادوی لبه اریب (Bevel Effect) --- */
+            box-shadow:
+                inset 0 3px 0 rgba(255, 255, 255, 0.597),
+                /* نور براق لبه بالا */
+                inset 0 -4px 0 rgba(0, 0, 0, 0.3),
+                /* لبه تیره پایین برای عمق */
+                0 6px 15px rgba(53, 39, 118, 0.278);
+            /* سایه بیرونی روی نمودار */
+        }
+
+        /* افکت براق نیمه بالایی کارت */
+        .info-card::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 50%;
+            background: linear-gradient(to bottom, rgba(255, 255, 255, 0.1), transparent);
+            pointer-events: none;
+        }
+
+        .info-card .label {
+            font-size: .85rem;
+            color: #f67002;
+            /* رنگ آبی روشن برای عنوان */
+            display: block;
+            font-weight: bold;
+            text-shadow: 0 1px 2px rgb(0, 0, 0);
+            position: relative;
+            z-index: 2;
+        }
+
+        .info-card .value {
+            font-size: 0.95rem;
+            font-weight: 750;
+            color: #ffe100;
+            /* رنگ زرد طلایی Arbab */
+            text-shadow: 0 2px 4px rgb(3, 1, 19);
+            position: relative;
+            z-index: 2;
+        }
+
+        .gold-label {
+            color: #de5900 !important;
+            /* رنگ طلایی برای برچسب */
+        }
+
+        .gold-card {
+            border-right: 2px solid #e9e605b5;
+            /* یک خط طلایی کنار کارت */
+        }
+
+        .separator {
+            width: 1px;
+            height: 100%;
+            background: rgba(14, 174, 33, 0.864);
+            /* یک خط عمودی ظریف */
+            margin: 0 10px;
+        }
+
+
+
+
+        .chart-overlay-info {
+            position: absolute;
+            top: 5px;
+            left: 12px;
+            z-index: 130;
+            min-width: 1px;
+            /* عرض را کمی بیشتر بگیر تا جا برای جابجایی دستی باشد */
+            height: 0px;
+            /* ارتفاع ثابت برای کنترل بهتر */
+            background: rgba(11, 18, 26, 0.8) !important;
+            backdrop-filter: blur(1px);
+            border: 1px solid rgba(255, 230, 0, 0.3);
+            border-radius: 20px;
+            display: relative;
+            padding: 3px;
+            box-shadow: 0 4px 20px rgb(186, 12, 255), inset 0 0 15px rgba(140, 0, 255, 0.197);
+        }
+
+        /* گروه قیمت (سمت چپ پنل) */
+
+        /* گروه قیمت (سمت چپ پنل) */
+        .price-display-group {
+            position: relative;
+            top: 0px;
+            left: 0px;
+            /* فاصله از لبه سمت چپ پنل */
+            display: inline-block;
+            /* برای اینکه در کنار دکمه‌ها قرار بگیرد */
+            vertical-align: middle;
+        }
+
+        .overlay-price {
+            font-size: 1rem;
+            font-weight: 900;
+            font-family: 'Courier New', Courier, monospace;
+            color: #fee500;
+            /* تغییر رنگ به زرد مطابق سلیقه‌ات */
+            text-shadow: 0 2px 4px rgb(3, 1, 19);
+            display: block;
+        }
+
+        /* دکمه‌ها (سمت راست پنل) */
+        .left-action-buttons {
+            position: relative;
+            top: 0px;
+            /* جابجایی عمودی برای تراز شدن با قیمت */
+            left: 0px;
+            /* فاصله از قیمت برای رفتن به سمت مرکز و راست */
+            display: inline-flex;
+            gap: 0.6px;
+        }
+
+
+
+
+        .overlay-symbol {
+            font-size: 1rem;
+            font-weight: bold;
+            color: #c94d01;
+            /* رنگ سبز روشن برای نماد */
+        }
+
+
+        .control-btn {
+            /* گرادینت شیشه‌ای مشابه پنل سمت راست */
+            background: linear-gradient(135deg, rgba(104, 0, 160, 0.493), rgba(105, 218, 0, 0.488));
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+
+            color: #fecb00;
+            /* رنگ آیکون زرد */
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1rem;
+            border: none;
+            /* حذف بوردر ساده */
+            transition: 0.3s;
+            position: relative;
+            overflow: hidden;
+
+            /* ایجاد لبه اریب (Bevel) دقیقاً مشابه رایت پنل */
+            box-shadow:
+                inset 0 2px 0 rgba(255, 255, 255, 0.4),
+                /* لبه براق بالا */
+                inset 0 -3px 0 rgba(0, 0, 0, 0.3),
+                /* لبه تیره پایین */
+                0 4px 10px rgba(0, 0, 0, 0.5),
+                /* سایه بیرونی */
+                0 0 5px rgba(254, 229, 0, 0.3);
+            /* درخشش خفیف زرد */
+        }
+
+        /* افکت براق نیمه بالایی دکمه */
+        .control-btn::after {
+            content: "";
+            position: absolute;
+            top: 0px;
+            left: 0px;
+            width: 100%;
+            height: 50%;
+            background: linear-gradient(to bottom, rgba(255, 255, 255, 0.15), transparent);
+            pointer-events: none;
+        }
+
+        /* حالت هاور (Hover) */
+        .control-btn:hover {
+            transform: scale(1.1) translateY(-2px);
+            box-shadow:
+                inset 0 2px 0 rgb(149, 255, 0),
+                inset 0 -3px 0 rgb(249, 0, 212),
+                0 8px 15px rgb(104, 9, 247),
+                0 0 15px rgb(254, 229, 0);
+            /* افزایش درخشش زرد هنگام هاور */
+        }
+
+        .drawer {
+            position: absolute;
+            top: 85px;
+            left: 15px;
+            z-index: 120;
+            background: rgba(29, 47, 117, 0.005);
+            width: 320px;
+            padding: 15px;
+            border-radius: 40px;
+            border: 2px solid var(--accent-color);
+            display: none;
+            flex-direction: column;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+            max-height: 75vh;
+            overflow-y: auto;
+            direction: rtl;
+        }
+
+        .drawer.active {
+            display: flex;
+        }
+
+        .asset-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+            direction: ltr;
+        }
+
+        .asset-table tr {
+            border-bottom: 1px solid #1c1f24;
+            cursor: pointer;
+        }
+
+        .asset-table tr:hover {
+            background: #006108;
+        }
+
+        .asset-table td {
+            padding: 10px 5px;
+            text-align: left;
+            color: #f97901;
+
+        }
+
+        .coin-cell {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: bold;
+            color: var(--accent-color);
+        }
+
+        .coin-cell img {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+        }
+
+        .category-header {
+            background: rgba(14, 2, 150, 0.451);
+            text-align: center !important;
+            font-size: 0.9rem;
+            color: #2605e210;
+            font-weight: bold;
+            left: 10px;
+
+        }
+
+        input,
+        button,
+        select {
+            background: #6202e939;
+            color: #e2f206da;
+            border: 1px solid var(--border-color);
+            padding: 8px;
+            border-radius: 40px;
+            width: 100%;
+            margin-bottom: 5px;
+        }
+
+        .section-label {
+            font-size: 0.75rem;
+            color: var(--accent-color);
+            font-weight: bold;
+            margin: 10px 0 8px;
+            border-bottom: 1px solid #ff620000;
+        }
+
+        .color-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            margin-bottom: 8px;
+        }
+
+        .cp {
+            width: 35px !important;
+            height: 25px;
+            padding: 0;
+            border: none;
+            cursor: pointer;
+            background: none;
+        }
+
+        .draw-active {
+            background: var(--danger) !important;
+            color: #fff;
+        }
+
+        ::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--accent-color);
+            border-radius: 10px;
+        }
+
+        @media (max-width: 600px) {
+            .right-info-panel {
+                right: 5px;
+                top: 3px;
+                max-width: 110px;
+                pointer-events: auto;
+                /* پنل باریک‌تر برای اشغال فضای کمتر از نمودار */
+
+            }
+
+            .info-card {
+                padding: 6px 10px;
+                gap: 4px;
+                border-radius: 8px;
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .info-card .label {
+                font-size: 0.55rem;
+                margin-bottom: 2px;
+            }
+
+            .info-card .value {
+                font-size: 0.75rem;
+            }
+
+            #cube-container {
+                right: 160px;
+                /* تنظیم موقعیت مکعب نسبت به پنل جدید */
+                top: 30px;
+                transform: scale(0.4);
+                /* کوچک‌تر کردن مکعب در موبایل */
+            }
+
+            .combined-panel {
+                flex-direction: row;
+                /* آیتم‌ها زیر هم قرار بگیرند */
+            }
+
+            .separator {
+                width: 60%;
+                height: 1px;
+                background: rgba(191, 255, 1, 0);
+                margin: 2px auto;
+                opacity: 0.3;
+            }
+        }
+
+        /* بهبود نمایش در موبایل */
+        @media (max-width: 600px) {
+            .chart-overlay-info {
+                left: 1px;
+                max-width: calc(100% - 10px);
+                padding: 4px 8px;
+            }
+        }
+
+
+        .drawer {
+            width: 280px;
+            left: 5px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!--  jabeii va market  دکمه باز کردن پنل -->
+    <button class="toggle-panel-btn" onclick="togglePanel()" style="color: #058001;">M&D</button>
+
+    <div class="cyber-panel" id="warRoomPanel">
+        <div class="header">
+            <div class="live-tag">LIVE <div id="status-dot"></div>
+            </div>
+            <div class="title">ROOM V12</div>
+        </div>
+
+        <div class="section-label">$ & GOLD</div>
+        <div class="grid-3">
+            <div class="royale-card">
+                <span class="label">PAXG/USD</span>
+                <span id="paxg-price" class="value">--</span>
+                <span id="paxg-chg" class="change">--</span>
+            </div>
+            <div class="royale-card">
+                <span class="label">GRAM/TL</span>
+                <span id="gram-try" class="value gold-v" style="color: #1fff02;">--</span>
+                <span class="change" style="color:rgb(239, 247, 1)">GOLD</span>
+            </div>
+            <div class="royale-card">
+                <span class="label">USDT/TRY</span>
+                <span id="usdt-try" class="value" style="color: #47f906;">--</span>
+                <span id="usdt-chg" class="change">--</span>
+            </div>
+        </div>
+
+        <div class="section-label">GLOBAL</div>
+        <div class="grid-3">
+            <div class="royale-card" style="border-bottom-color: var(--neon-blue);">
+                <span class="label">DXY INDEX</span>
+                <span id="dxy-price" class="value" style="color: var(--neon-blue);">--</span>
+                <span id="dxy-chg" class="change">--</span>
+            </div>
+            <div class="royale-card">
+                <span class="label">SILVER/USD</span>
+                <span id="silver-price" class="value gold-v">--</span>
+                <span id="silver-chg" class="change">--</span>
+            </div>
+            <div class="royale-card">
+                <span class="label">BRENT OIL</span>
+                <span id="oil-price" class="value" style="color: #ff9500;">--</span>
+                <span id="oil-chg" class="change">--</span>
+            </div>
+        </div>
+
+        <div class="section-label">nazdaq &</div>
+        <div class="grid-2">
+            <div class="royale-card"
+                style="background: linear-gradient(to right, rgba(0, 210, 255, 0.1), var(--royal-purple));">
+                <span class="label">NASDAQ 100</span>
+                <span id="nasdaq-price" class="value">--</span>
+                <span id="nasdaq-chg" class="change">--</span>
+            </div>
+            <div class="royale-card"
+                style="background: linear-gradient(to left, rgba(255, 77, 77, 0.1), var(--royal-purple));">
+                <span class="label">S&P 500</span>
+                <span id="sp500-price" class="value">--</span>
+                <span id="sp500-chg" class="change">--</span>
+            </div>
+        </div>
+
+        <div class="section-label">CRYPTO MAJORS</div>
+        <div class="grid-3">
+            <div class="royale-card">
+                <span class="label">BITCOIN</span>
+                <span id="btc-price" class="value" style="color:#ff9500;">--</span>
+                <span id="btc-chg" class="change">--</span>
+            </div>
+            <div class="royale-card">
+                <span class="label">ETHEREUM</span>
+                <span id="eth-price" class="value" style="color:#c994ff;">--</span>
+                <span id="eth-chg" class="change">--</span>
+            </div>
+            <div class="royale-card">
+                <span class="label">SOLANA</span>
+                <span id="sol-price" class="value">--</span>
+                <span id="sol-chg" class="change">--</span>
+            </div>
+        </div>
+
+        <div class="section-label">MARKET STATS</div>
+        <div class="grid-2">
+            <div class="royale-card"><span class="label">TOTAL MCAP</span><span id="total-mcap"
+                    class="value gold-v">--</span></div>
+            <div class="royale-card"><span class="label">FEAR & GREED</span><span id="fng" class="value">--</span></div>
+            <div class="royale-card"><span class="label">BTC DOM</span><span id="btc-dom" class="value">--</span></div>
+            <div class="royale-card"><span class="label">BTC MCAP</span><span id="btc-mcap"
+                    class="value gold-v">--</span></div>
+        </div>
+
+        <div class="footer">Version 12.5</div>
+    </div>
+
+    <div class="main-content">
+        <div class="right-info-panel">
+            <div class="info-card combined-panel">
+                <div class="stat-item">
+                    <span class="label">F&G</span>
+                    <span id="fg-index" class="value">--</span>
+                </div>
+
+                <div class="separator"></div>
+                <div class="stat-item">
+                    <span class="label">BTC.D</span>
+                    <span id="btc-Rdom" class="value">--%</span>
+                </div>
+            </div>
+            <div class="info-card gold-card">
+                <div class="stat-item">
+                    <span class="label gold-label">GOLD (PAXG)</span>
+                    <span id="gold-price" class="value">--</span>
+                </div>
+
+                <div class="price-display-group">
+                    <span id="overlay-sym" class="overlay-symbol">BTC/USDT</span>
+                    <span id="overlay-price" class="overlay-price">0.00</span>
+                    <div id="overlay-change" style="font-size: 0.85rem; font-weight: bold;">0.00%</div>
+                </div>
+            </div>
+
+            <!-- مکعب 3D با اطلاعات قیمت و تغییرات -->
+            <div id="cube-container">
+                <div class="cube">
+                    <div class="face front">
+                        <div class="label">PRICE</div>
+                        <div id="cube-price" class="value">--</div>
+                        <div id="cube-sym" class="details">BTC/USDT</div>
+                    </div>
+                    <div class="face back">
+                        <div class="label">CHANGE</div>
+                        <div id="cube-change" class="value">--</div>
+                        <div class="details">24h Percent</div>
+                    </div>
+                    <div class="face right">
+                        <div class="label">DOMINANCE</div>
+                        <div id="cube-dom" class="value">--</div>
+                        <div class="details">BTC.D</div>
+                    </div>
+                    <div class="face left">
+                        <div class="label">F&G INDEX</div>
+                        <div id="cube-fg" class="value">--</div>
+                        <div class="details">F&G</div>
+                    </div>
+                    <div class="face top">
+                        <div class="label">TIMEFRAME</div>
+                        <div id="cube-tf" class="value">1D</div>
+                        <div class="details">Interval</div>
+                    </div>
+                    <div class="face bottom">
+                        <div class="label">SYSTEM</div>
+                        <div class="value">LIVE</div>
+                        <div class="details">ESI V 38</div>
+
+                    </div>
+                </div>
+            </div>
+
+
+
+        </div>
+
+        <div id="chart-container">
+            <div class="chart-overlay-info">
+
+
+                <div class="left-action-buttons">
+                    <button class="control-btn" onclick="toggleDrawer('settings-drawer')" title="تنظیمات"><i
+                            class="fas fa-cog"></i></button>
+                    <button class="control-btn" onclick="toggleDrawer('pair-drawer')" title="جفت‌ارزهای نسبی"><i
+                            class="fas fa-exchange-alt"></i></button>
+                    <button class="control-btn" onclick="toggleDrawer('coin-drawer')" title="لیست ۱۰۰ ارز"><i
+                            class="fas fa-list"></i></button>
+                    <button class="control-btn" id="fs-btn" onclick="toggleFullScreen()" title="تمام صفحه"><i
+                            class="fas fa-expand"></i></button>
+                </div>
+            </div>
+        </div>
+
+
+        <div id="settings-drawer" class="drawer">
+            <div class="section-label">جستجو</div>
+            <input type="text" id="search-input" placeholder="مثلاً ETHBTC..."
+                onkeydown="if(event.key==='Enter') updateSymbol(this.value.toUpperCase())">
+            <select id="tf-select" onchange="changeTF(this.value)">
+                <option value="15m">15m</option>
+                <option value="1h">1h</option>
+                <option value="4h">4h</option>
+                <option value="1d" selected>1d</option>
+                <option value="1w">1w</option>
+                <option value="1M">1M</option>
+            </select>
+
+
+            <div class="section-label">اندیکاتورها</div>
+            <label style="font-size: 0.7rem;"><input type="checkbox" id="show-bb" onchange="updateVisibility()">
+                Bollinger Bands</label>
+            <label style="font-size: 0.7rem;"><input type="checkbox" id="show-rsi" onchange="updateVisibility()"> RSI
+                (14)</label>
+
+            <div class="section-label">ابزار ترسیم</div>
+            <div class="color-row">رنگ خط: <input type="color" id="draw-color" value="#f0b90b" class="cp"></div>
+            <button id="draw-btn" onclick="toggleDrawingMode()">فعال کردن ترسیم</button>
+            <button onclick="undoLastLine()">برگشت (Undo)</button>
+            <button onclick="clearLines()" style="color: var(--danger)">پاک کردن همه</button>
+
+            <div class="section-label">استایل EMA</div>
+            <div class="color-row">EMA 7 <input type="color" id="c7" value="#FFD700" class="cp"
+                    onchange="updateEMAStyle()"></div>
+            <div class="color-row">EMA 30 <input type="color" id="c30" value="#E040FB" class="cp"
+                    onchange="updateEMAStyle()"></div>
+            <div class="color-row">EMA 200 <input type="color" id="c200" value="#FFFFFF" class="cp"
+                    onchange="updateEMAStyle()"></div>
+        </div>
+
+        <div id="pair-drawer" class="drawer">
+            <div class="section-label" style="text-align: center;">Btc & Eth pair</div>
+            <table class="asset-table">
+                <tbody id="pair-list">
+                    <tr class="category-header">
+                        <td colspan="2">ALTS / BTC</td>
+                    </tr>
+                    <tr onclick="updateSymbol('ETHBTC'); toggleDrawer('pair-drawer')">
+                        <td class="coin-cell"><img
+                                src="https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/eth.png">ETH
+                            / BTC</td>
+                        <td>اتریوم / بیت‌کوین</td>
+                    </tr>
+                    <tr onclick="updateSymbol('SOLBTC'); toggleDrawer('pair-drawer')">
+                        <td class="coin-cell"><img
+                                src="https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/sol.png">SOL
+                            / BTC</td>
+                        <td>سولانا / بیت‌کوین</td>
+                    </tr>
+                    <tr onclick="updateSymbol('XRPBTC'); toggleDrawer('pair-drawer')">
+                        <td class="coin-cell"><img
+                                src="https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/xrp.png">XRP
+                            / BTC</td>
+                        <td>ریپل / بیت‌کوین</td>
+                    </tr>
+                    <tr onclick="updateSymbol('BNBBTC'); toggleDrawer('pair-drawer')">
+                        <td class="coin-cell"><img
+                                src="https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/bnb.png">BNB
+                            / BTC</td>
+                        <td>بایننس / بیت‌کوین</td>
+                    </tr>
+                    <tr onclick="updateSymbol('ADABTC'); toggleDrawer('pair-drawer')">
+                        <td class="coin-cell"><img
+                                src="https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/ada.png">ADA
+                            / BTC</td>
+                        <td>کاردانو / بیت‌کوین</td>
+                    </tr>
+                    <tr onclick="updateSymbol('DOGEBTC'); toggleDrawer('pair-drawer')">
+                        <td class="coin-cell"><img
+                                src="https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/doge.png">DOGE
+                            / BTC</td>
+                        <td>دوج / بیت‌کوین</td>
+                    </tr>
+                    <tr onclick="updateSymbol('LINKBTC'); toggleDrawer('pair-drawer')">
+                        <td class="coin-cell"><img
+                                src="https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/link.png">LINK
+                            / BTC</td>
+                        <td>لینک / بیت‌کوین</td>
+                    </tr>
+                    <tr onclick="updateSymbol('DOTBTC'); toggleDrawer('pair-drawer')">
+                        <td class="coin-cell"><img
+                                src="https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/dot.png">DOT
+                            / BTC</td>
+                        <td>پولکادات / بیت‌کوین</td>
+                    </tr>
+                    <tr onclick="updateSymbol('AVAXBTC'); toggleDrawer('pair-drawer')">
+                        <td class="coin-cell"><img
+                                src="https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/avax.png">AVAX
+                            / BTC</td>
+                        <td>آوالانچ / بیت‌کوین</td>
+                    </tr>
+                    <tr onclick="updateSymbol('NEARBTC'); toggleDrawer('pair-drawer')">
+                        <td class="coin-cell"><img
+                                src="https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/near.png">NEAR
+                            / BTC</td>
+                        <td>نیر / بیت‌کوین</td>
+                    </tr>
+                    <tr onclick="updateSymbol('MATICBTC'); toggleDrawer('pair-drawer')">
+                        <td class="coin-cell"><img
+                                src="https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/matic.png">MATIC
+                            / BTC</td>
+                        <td>متیک / بیت‌کوین</td>
+                    </tr>
+                    <tr onclick="updateSymbol('SHIBBTC'); toggleDrawer('pair-drawer')">
+                        <td class="coin-cell"><img
+                                src="https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/shib.png">SHIB
+                            / BTC</td>
+                        <td>شیبا / بیت‌کوین</td>
+                    </tr>
+
+                    <tr class="category-header">
+                        <td colspan="2">ALTS / ETH</td>
+                    </tr>
+                    <tr onclick="updateSymbol('SOLETH'); toggleDrawer('pair-drawer')">
+                        <td class="coin-cell"><img
+                                src="https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/sol.png">SOL
+                            / ETH</td>
+                        <td>سولانا / اتریوم</td>
+                    </tr>
+                    <tr onclick="updateSymbol('BNBETH'); toggleDrawer('pair-drawer')">
+                        <td class="coin-cell"><img
+                                src="https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/bnb.png">BNB
+                            / ETH</td>
+                        <td>بایننس / اتریوم</td>
+                    </tr>
+                    <tr onclick="updateSymbol('LDOETH'); toggleDrawer('pair-drawer')">
+                        <td class="coin-cell"><img
+                                src="https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/ldo.png">LDO
+                            / ETH</td>
+                        <td>لیدو / اتریوم</td>
+                    </tr>
+                    <tr onclick="updateSymbol('ARBETH'); toggleDrawer('pair-drawer')">
+                        <td class="coin-cell"><img
+                                src="https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/arb.png">ARB
+                            / ETH</td>
+                        <td>آربیتروم / اتریوم</td>
+                    </tr>
+                    <tr onclick="updateSymbol('OPETH'); toggleDrawer('pair-drawer')">
+                        <td class="coin-cell"><img
+                                src="https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/op.png">OP
+                            / ETH</td>
+                        <td>اپتیمیسم / اتریوم</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div id="coin-drawer" class="drawer">
+            <div class="section-label" style="text-align: center;">Top Coins by Trading Volume</div>
+            <table class="asset-table">
+                <tbody id="top-coins-list"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        let chart, candleSeries, volumeSeries, ema7, ema30, ema200, socket;
+        let bbUpper, bbMiddle, bbLower, rsiSeries;
+        let currentSymbol = 'BTCUSDT', currentInterval = '1d', activeLines = [], isDrawingEnabled = false;
+        let dailyOpenPrice = 0, selectedLine = null, touchTimer;
+        const LONG_PRESS_DURATION = 500;
+
+        function toggleDrawer(id) {
+            const drawer = document.getElementById(id);
+            const isActive = drawer.classList.contains('active');
+            document.querySelectorAll('.drawer').forEach(d => d.classList.remove('active'));
+            if (!isActive) drawer.classList.add('active');
+        }
+
+        function toggleFullScreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().then(() => {
+                    setTimeout(() => window.dispatchEvent(new Event('resize')), 200);
+                });
+                document.getElementById('fs-btn').innerHTML = '<i class="fas fa-compress"></i>';
+            } else {
+                document.exitFullscreen().then(() => {
+                    setTimeout(() => window.dispatchEvent(new Event('resize')), 200);
+                });
+                document.getElementById('fs-btn').innerHTML = '<i class="fas fa-expand"></i>';
+            }
+        }
+
+        function initChart() {
+            const container = document.getElementById('chart-container');
+            chart = LightweightCharts.createChart(container, {
+                layout: { backgroundColor: '#0b121a', textColor: '#d1d4dc' },
+                grid: { vertLines: { color: '#16191e' }, horzLines: { color: '#16191e' } },
+                timeScale: { timeVisible: true, borderVisible: false },
+                width: container.clientWidth, height: container.clientHeight,
+                handleScroll: { vertTouchDrag: true, horzTouchDrag: true },
+                handleScale: { pinch: true, mouseWheel: true }
+            });
+
+            candleSeries = chart.addCandlestickSeries({ upColor: '#16c784', downColor: '#ea3943', borderVisible: false });
+            volumeSeries = chart.addHistogramSeries({ color: '#26a69a', priceFormat: { type: 'volume' }, priceScaleId: '', scaleMargins: { top: 0.8, bottom: 0 } });
+
+            ema7 = chart.addLineSeries({ color: '#FFD700', lineWidth: 1, priceLineVisible: false });
+            ema30 = chart.addLineSeries({ color: '#E040FB', lineWidth: 1, priceLineVisible: false });
+            ema200 = chart.addLineSeries({ color: '#FFFFFF', lineWidth: 2, priceLineVisible: false });
+
+            bbUpper = chart.addLineSeries({ color: 'rgba(33, 150, 243, 0.7)', lineWidth: 1, visible: false });
+            bbMiddle = chart.addLineSeries({ color: 'rgba(33, 150, 243, 0.4)', lineWidth: 1, visible: false });
+            bbLower = chart.addLineSeries({ color: 'rgba(33, 150, 243, 0.7)', lineWidth: 1, visible: false });
+
+            rsiSeries = chart.addLineSeries({ color: '#ff9800', lineWidth: 1.5, priceScaleId: 'rsi', visible: false });
+            chart.priceScale('rsi').applyOptions({ scaleMargins: { top: 0.75, bottom: 0.05 } });
+
+            // --- منطق رسم و جابجایی (Desktop) ---
+            chart.subscribeClick(p => {
+                if (isDrawingEnabled && p.point && !window.matchMedia("(pointer: coarse)").matches) {
+                    const price = candleSeries.coordinateToPrice(p.point.y);
+                    if (price) addLine(price, true);
+                }
+            });
+
+            container.addEventListener('mousedown', (e) => {
+                if (!isDrawingEnabled) {
+                    const price = candleSeries.coordinateToPrice(e.offsetY);
+                    selectedLine = activeLines.find(l => Math.abs(l.price - price) < (l.price * 0.005));
+                    if (selectedLine) chart.applyOptions({ handleScroll: false, handleScale: false });
+                }
+            });
+
+            window.addEventListener('mousemove', (e) => {
+                if (selectedLine) {
+                    const rect = container.getBoundingClientRect();
+                    const newPrice = candleSeries.coordinateToPrice(e.clientY - rect.top);
+                    if (newPrice) {
+                        selectedLine.price = newPrice;
+                        selectedLine.obj.applyOptions({ price: newPrice, title: newPrice.toFixed(2) });
+                    }
+                }
+            });
+
+            window.addEventListener('mouseup', () => {
+                if (selectedLine) { saveLines(); selectedLine = null; chart.applyOptions({ handleScroll: true, handleScale: true }); }
+            });
+
+            // --- منطق لمس (Mobile) ---
+            container.addEventListener('touchstart', (e) => {
+                const rect = container.getBoundingClientRect();
+                const y = e.touches[0].clientY - rect.top;
+                const price = candleSeries.coordinateToPrice(y);
+
+                if (isDrawingEnabled && e.touches.length === 1) {
+                    touchTimer = setTimeout(() => {
+                        if (price) { addLine(price, true); if (navigator.vibrate) navigator.vibrate(40); }
+                    }, LONG_PRESS_DURATION);
+                } else if (!isDrawingEnabled) {
+                    selectedLine = activeLines.find(l => Math.abs(l.price - price) < (l.price * 0.008));
+                    if (selectedLine) chart.applyOptions({ handleScroll: false, handleScale: false });
+                }
+            }, { passive: false });
+
+            container.addEventListener('touchmove', (e) => {
+                clearTimeout(touchTimer);
+                if (selectedLine) {
+                    const rect = container.getBoundingClientRect();
+                    const newPrice = candleSeries.coordinateToPrice(e.touches[0].clientY - rect.top);
+                    if (newPrice) {
+                        selectedLine.price = newPrice;
+                        selectedLine.obj.applyOptions({ price: newPrice, title: newPrice.toFixed(2) });
+                    }
+                    e.preventDefault();
+                }
+            }, { passive: false });
+
+            container.addEventListener('touchend', () => {
+                clearTimeout(touchTimer);
+                if (selectedLine) { saveLines(); selectedLine = null; chart.applyOptions({ handleScroll: true, handleScale: true }); }
+            });
+
+            updateSymbol('BTCUSDT');
+            loadTopVolumeCoins();
+            fetchExternalData();
+        }
+
+        async function updateSymbol(symbol) {
+            if (symbol.length < 6 && !symbol.includes('BTC') && !symbol.includes('ETH')) symbol += 'USDT';
+            currentSymbol = symbol;
+            document.getElementById('overlay-sym').innerText = symbol;
+            document.getElementById('cube-sym').innerText = symbol;
+            document.getElementById('cube-tf').innerText = currentInterval;
+            if (socket) socket.close();
+            activeLines.forEach(l => candleSeries.removePriceLine(l.obj));
+            activeLines = []; loadSavedLines();
+            try {
+                const ticker = await fetch(`https://api.binance.com/api/v3/ticker/24hr?symbol=${symbol}`).then(r => r.json());
+                dailyOpenPrice = parseFloat(ticker.openPrice);
+                const dom = await fetch(`https://api.coingecko.com/api/v3/global`).then(r => r.json());
+                const btcDom = dom.data.market_cap_percentage.btc.toFixed(1);
+                document.getElementById('cube-dom').innerText = btcDom + "%";
+                document.getElementById('btc-Rdom').innerText = btcDom + "%";
+                const fg = await fetch(`https://api.alternative.me/fng/?limit=1`).then(r => r.json());
+                document.getElementById('cube-fg').innerText = fg.data[0].value;
+                document.getElementById('fg-index').innerText = fg.data[0].value;
+
+                const res = await fetch(`https://api.binance.com/api/v3/klines?symbol=${symbol}&interval=${currentInterval}&limit=500`);
+                const raw = await res.json();
+                const data = raw.map(d => ({ time: d[0] / 1000, open: +d[1], high: +d[2], low: +d[3], close: +d[4], vol: +d[5] }));
+                candleSeries.setData(data);
+                volumeSeries.setData(data.map(d => ({ time: d.time, value: d.vol, color: d.close >= d.open ? '#16c78444' : '#ea394344' })));
+                ema7.setData(calcEMA(data, 7)); ema30.setData(calcEMA(data, 30)); ema200.setData(calcEMA(data, 200));
+                const bb = calcBB(data, 20, 2); bbUpper.setData(bb.u); bbMiddle.setData(bb.m); bbLower.setData(bb.l);
+                rsiSeries.setData(calcRSI(data, 14)); chart.timeScale().fitContent();
+                socket = new WebSocket(`wss://stream.binance.com:9443/ws/${symbol.toLowerCase()}@kline_${currentInterval}`);
+                socket.onmessage = e => {
+                    const k = JSON.parse(e.data).k; // ۱. اول داده رو بگیر
+                    const price = parseFloat(k.c);  // ۲. حالا قیمت رو استخراج کن
+
+                    // ۳. حالا از قیمت برای آپدیت استفاده کن
+                    document.getElementById('cube-price').innerText = "$" + price.toLocaleString();
+                    document.getElementById('overlay-price').innerText = price.toLocaleString();
+
+                    const changeVal = ((price - dailyOpenPrice) / dailyOpenPrice * 100).toFixed(2) + "%";
+                    document.getElementById('cube-change').innerText = changeVal;
+
+                    const cel = document.getElementById('overlay-change');
+                    cel.innerText = changeVal;
+                    cel.style.color = (price >= dailyOpenPrice) ? "var(--success)" : "var(--danger)";
+
+                    candleSeries.update({ time: k.t / 1000, open: +k.o, high: +k.h, low: +k.l, close: +k.c });
+                };
+
+            } catch (e) { }
+        }
+
+        const calcEMA = (d, p) => { let k = 2 / (p + 1), ema = [], prev = d[0].close; d.forEach(x => { let val = (x.close * k) + (prev * (1 - k)); ema.push({ time: x.time, value: val }); prev = val; }); return ema; };
+        const calcBB = (d, p, s) => { let u = [], m = [], l = []; for (let i = p - 1; i < d.length; i++) { let slice = d.slice(i - p + 1, i + 1), avg = slice.reduce((a, b) => a + b.close, 0) / p, sd = Math.sqrt(slice.reduce((a, b) => a + Math.pow(b.close - avg, 2), 0) / p); m.push({ time: d[i].time, value: avg }); u.push({ time: d[i].time, value: avg + (sd * s) }); l.push({ time: d[i].time, value: avg - (sd * s) }); } return { u, m, l }; };
+        const calcRSI = (d, p) => { let rsi = [], g = 0, l = 0; for (let i = 1; i < d.length; i++) { let diff = d[i].close - d[i - 1].close; if (i <= p) { if (diff > 0) g += diff; else l -= diff; if (i === p) { rsi.push({ time: d[i].time, value: 100 - (100 / (1 + (g / l))) }); g /= p; l /= p; } } else { let curG = diff > 0 ? diff : 0, curL = diff < 0 ? -diff : 0; g = (g * (p - 1) + curG) / p; l = (l * (p - 1) + curL) / p; rsi.push({ time: d[i].time, value: 100 - (100 / (1 + (g / l))) }); } } return rsi; };
+
+        function updateEMAStyle() { ema7.applyOptions({ color: document.getElementById('c7').value }); ema30.applyOptions({ color: document.getElementById('c30').value }); ema200.applyOptions({ color: document.getElementById('c200').value }); }
+        function updateVisibility() { let bb = document.getElementById('show-bb').checked; rsiSeries.applyOptions({ visible: document.getElementById('show-rsi').checked }); bbUpper.applyOptions({ visible: bb }); bbMiddle.applyOptions({ visible: bb }); bbLower.applyOptions({ visible: bb }); }
+        function changeTF(tf) { currentInterval = tf; updateSymbol(currentSymbol); }
+
+        async function fetchExternalData() {
+            try {
+                const fg = await fetch('https://api.alternative.me/fng/').then(r => r.json());
+                const dom = await fetch('https://api.coingecko.com/api/v3/global').then(r => r.json());
+                document.getElementById('cube-fg').innerText = fg.data[0].value;
+                document.getElementById('fg-index').innerText = fg.data[0].value;
+                document.getElementById('cube-dom').innerText = dom.data.market_cap_percentage.btc.toFixed(1) + '%';
+                document.getElementById('btc-dom').innerText = ((dom.data.market_cap_change_percentage_24h.btc) / 100).toFixed(2) + '%';
+
+            } catch (e) { console.error('Error fetching external data:', e); }
+        }
+
+        async function loadTopVolumeCoins() {
+            try {
+                const res = await fetch('https://api.binance.com/api/v3/ticker/24hr').then(r => r.json());
+                const top = res.filter(x => x.symbol.endsWith('USDT')).sort((a, b) => b.quoteVolume - a.quoteVolume).slice(0, 100);
+                document.getElementById('top-coins-list').innerHTML = top.map(c => {
+                    const s = c.symbol.replace('USDT', '');
+                    return `<tr onclick="updateSymbol('${c.symbol}'); toggleDrawer('coin-drawer')"><td class="coin-cell"><img src="https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/${s.toLowerCase()}.png" onerror="this.src='https://via.placeholder.com/20'">${s}</td><td>${parseFloat(c.lastPrice).toLocaleString()}</td><td style="color:${parseFloat(c.priceChangePercent) >= 0 ? 'var(--success)' : 'var(--danger)'}">${c.priceChangePercent}%</td></tr>`;
+                }).join('');
+            } catch (e) { }
+        }
+
+        function addLine(p, s = true, c = null) {
+            const col = c || document.getElementById('draw-color').value;
+            const l = candleSeries.createPriceLine({ price: p, color: col, lineWidth: 2, lineStyle: 2, title: p.toFixed(2) });
+            activeLines.push({ obj: l, price: p, color: col }); if (s) saveLines();
+        }
+        function saveLines() { localStorage.setItem(`drawings_${currentSymbol}`, JSON.stringify(activeLines.map(l => ({ price: l.price, color: l.color })))); }
+        function loadSavedLines() { const saved = localStorage.getItem(`drawings_${currentSymbol}`); if (saved) JSON.parse(saved).forEach(l => addLine(l.price, false, l.color)); }
+        function undoLastLine() { if (activeLines.length) { candleSeries.removePriceLine(activeLines.pop().obj); saveLines(); } }
+        function clearLines() { activeLines.forEach(l => candleSeries.removePriceLine(l.obj)); activeLines = []; localStorage.removeItem(`drawings_${currentSymbol}`); }
+
+        function toggleDrawingMode() {
+            isDrawingEnabled = !isDrawingEnabled;
+            let b = document.getElementById('draw-btn');
+            b.innerText = isDrawingEnabled ? "توقف ترسیم (آماده)" : "فعال کردن ترسیم";
+            b.classList.toggle('draw-active', isDrawingEnabled);
+            chart.applyOptions({ handleScroll: { horzTouchDrag: !isDrawingEnabled, vertTouchDrag: !isDrawingEnabled } });
+        }
+
+        window.addEventListener('resize', () => {
+            const container = document.getElementById('chart-container');
+            if (chart && container) { chart.applyOptions({ width: container.clientWidth, height: container.clientHeight }); chart.timeScale().fitContent(); }
+        });
+
+        initChart();
+        document.addEventListener('click', e => { if (!e.target.closest('.drawer') && !e.target.closest('.control-btn') && !e.target.closest('.chart-overlay-info')) document.querySelectorAll('.drawer').forEach(d => d.classList.remove('active')); });
+        async function updateGoldPrice() {
+            try {
+                const response = await fetch('https://api.binance.com/api/v3/ticker/price?symbol=PAXGUSDT');
+                const data = await response.json();
+                const price = parseFloat(data.price).toFixed(1);
+
+                // به‌روزرسانی در پنل سمت راست
+                const goldElement = document.getElementById('gold-price');
+                if (goldElement) {
+                    goldElement.innerText = "$" + price;
+                }
+            } catch (e) {
+                console.error("خطا در دریافت قیمت طلا:", e);
+            }
+        }
+
+        // اجرای اولیه و تنظیم بازه زمانی برای به‌روزرسانی (مثلاً هر ۳۰ ثانیه)
+        updateGoldPrice();
+        setInterval(updateGoldPrice, 30000);
+        // تابع باز و بسته کردن پنل
+        function updateWarRoom() {
+            const panel = document.getElementById('warRoomPanel');
+        }
+
+        function formatChange(val, elementId) {
+            const el = document.getElementById(elementId);
+            if (!el) return;
+            const num = parseFloat(val);
+            const sign = num >= 0 ? "+" : "";
+            el.innerText = sign + num.toFixed(2) + "%";
+            el.className = "change " + (num >= 0 ? "up" : "down");
+        }
+
+        function formatChange(val, elementId) {
+            const el = document.getElementById(elementId);
+            if (!el) return;
+            const num = parseFloat(val);
+            const sign = num >= 0 ? "+" : "";
+            el.innerText = sign + num.toFixed(2) + "%";
+            el.className = "change " + (num >= 0 ? "up" : "down");
+        }
+
+        async function togglePanel() {
+            try {
+                const panel = document.getElementById('warRoomPanel'); if (panel) {
+                    panel.classList.toggle('open');
+                }
+                const b_res = await fetch('https://api.binance.com/api/v3/ticker/24hr?symbols=["PAXGUSDT","USDTTRY","BTCUSDT","ETHUSDT","SOLUSDT"]');
+                const b_data = await b_res.json();
+                const fng_res = await fetch('https://api.alternative.me/fng/');
+                const fng_data = await fng_res.json();
+                const g_res = await fetch('https://api.coingecko.com/api/v3/global');
+                const g_data = await g_res.json();
+
+                const getStat = (s) => b_data.find(x => x.symbol === s);
+                const btc = getStat("BTCUSDT");
+                const eth = getStat("ETHUSDT");
+                const sol = getStat("SOLUSDT");
+                const paxg = getStat("PAXGUSDT");
+                const usdt = getStat("USDTTRY");
+
+                document.getElementById('paxg-price').innerText = Math.floor(paxg.lastPrice).toLocaleString();
+                document.getElementById('btc-price').innerText = Math.floor(btc.lastPrice).toLocaleString();
+                document.getElementById('eth-price').innerText = Math.floor(eth.lastPrice).toLocaleString();
+                document.getElementById('sol-price').innerText = parseFloat(sol.lastPrice).toFixed(1);
+                document.getElementById('usdt-try').innerText = parseFloat(usdt.lastPrice).toFixed(2);
+
+                const gramTry = (parseFloat(paxg.lastPrice) * parseFloat(usdt.lastPrice)) / 31.1035;
+                document.getElementById('gram-try').innerText = Math.floor(gramTry).toLocaleString();
+
+                formatChange(paxg.priceChangePercent, 'paxg-chg');
+                formatChange(btc.priceChangePercent, 'btc-chg');
+                formatChange(eth.priceChangePercent, 'eth-chg');
+                formatChange(sol.priceChangePercent, 'sol-chg');
+                formatChange(usdt.priceChangePercent, 'usdt-chg');
+
+                const tm = g_data.data.total_market_cap.usd;
+                const bd = g_data.data.market_cap_percentage.btc;
+                document.getElementById('total-mcap').innerText = (tm / 1e12).toFixed(2) + "T";
+                document.getElementById('btc-mcap').innerText = ((tm * bd / 100) / 1e12).toFixed(2) + "T";
+                document.getElementById('btc-dom').innerText = bd.toFixed(1) + "%";
+                document.getElementById('fng').innerText = fng_data.data[0].value;
+
+                // شبیه‌ساز شاخص‌های جهانی (بورس و فارکس)
+                // در دنیای واقعی این اعداد را از APIهایی مثل TwelveData یا Finnhub بگیرید
+                document.getElementById('dxy-price').innerText = "104.42";
+                formatChange("-0.12", 'dxy-chg');
+                document.getElementById('silver-price').innerText = "30.95";
+                formatChange("+0.45", 'silver-chg');
+                document.getElementById('oil-price').innerText = "82.15";
+                formatChange("-0.60", 'oil-chg');
+                document.getElementById('nasdaq-price').innerText = "18,540";
+                formatChange("+1.10", 'nasdaq-chg');
+                document.getElementById('sp500-price').innerText = "5,245";
+                formatChange("+0.35", 'sp500-chg');
+
+                document.getElementById('status-dot').style.background = "#00fe04";
+            } catch (e) { document.getElementById('status-dot').style.background = "red"; }
+        }
+
+        updateWarRoom();
+
+        setInterval(updateWarRoom, 30000);
+        // لیسنر برای بستن پنل وار روم با کلیک روی صفحه
+        document.addEventListener('click', function (e) {
+            const panel = document.getElementById('warRoomPanel');
+            const toggleBtn = document.querySelector('.toggle-panel-btn');
+
+            // اگر پنل باز است و کلیک خارج از پنل و دکمه بازکننده رخ داده باشد
+            if (panel && panel.classList.contains('open')) {
+                if (!panel.contains(e.target) && !toggleBtn.contains(e.target)) {
+                    panel.classList.remove('open');
+                }
+            }
+        });
+
+    </script>
+</body>
+
+</html>
