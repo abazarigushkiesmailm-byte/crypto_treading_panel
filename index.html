@@ -4,1134 +4,387 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Trading Station Pro | Esi Elite </title>
+
     <script src="https://unpkg.com/lightweight-charts@3.8.0/dist/lightweight-charts.standalone.production.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-
-    <style>
-        :root {
-            --bg-main: #0b121a;
-            --bg-card: rgba(1, 17, 66, 0.98);
-            --border-color: #300026;
-            --accent-color: rgba(6, 2, 254, 0.564);
-            --text-primary: #fee500;
-            --success: #00fe04;
-            --danger: #f30814;
-            --cube-size: 130px;
-            --half-size: 70px;
-            --color-front: #26fc00;
-            --color-back: #ff9100;
-            --color-right: #fff200;
-            --color-left: #f99602;
-            --color-top: #e14ef4;
-            --color-bottom: #31c6f8;
-            --bg-dark: #c0810b;
-            --pistachio: rgba(89, 213, 6, 0.34);
-            --royal-purple: rgba(116, 18, 213, 0.3);
-            --gold-main: #ffae00;
-            --up-green: #00ff88;
-            --down-red: #ff4d4d;
-            --none-blue: #00d2ff;
-        }
-
-        body {
-            background: radial-gradient(circle at center, #15181e 0%, #080a0f 100%);
-            color: white;
-            font-family: 'Segoe UI', Arial, Tahoma, sans-serif;
-            margin: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            height: 100vh;
-            overflow: hidden;
-            touch-action: auto;
-        }
-
-        body:fullscreen .top-widget-bar {
-            display: none;
-        }
-
-        body:fullscreen #chart-container {
-            height: 100vh;
-        }
-
-        /* --- 3D Cube --- */
-        #cube-container {
-            position: absolute;
-            top: 30px;
-            right: 235px;
-            perspective: 1000px;
-            z-index: 120;
-            pointer-events: none;
-            transform: scale(0.6);
-        }
-
-        .cube {
-            width: var(--cube-size);
-            height: var(--cube-size);
-            position: absolute;
-            transform-style: preserve-3d;
-            animation: rotate 25s infinite linear;
-        }
-
-        @keyframes rotate {
-            0% {
-                transform: rotateX(0deg) rotateY(0deg);
-            }
-
-            25% {
-                transform: rotateX(90deg) rotateY(90deg);
-            }
-
-            50% {
-                transform: rotateX(180deg) rotateY(180deg);
-            }
-
-            75% {
-                transform: rotateX(270deg) rotateY(270deg);
-            }
-
-            100% {
-                transform: rotateX(360deg) rotateY(360deg);
-            }
-        }
-
-        .face {
-            position: absolute;
-            width: var(--cube-size);
-            height: var(--cube-size);
-            background: rgba(190, 6, 251, 0);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-            transform: scale(0.5);
-            backdrop-filter: blur(4px);
-            border-radius: 15px;
-            backface-visibility: visible;
-        }
-
-        .front {
-            transform: translateZ(var(--half-size));
-            border-color: var(--color-front);
-            box-shadow: 0 0 8px var(--color-front);
-        }
-
-        .back {
-            transform: rotateY(180deg) translateZ(var(--half-size));
-            border-color: var(--color-back);
-            box-shadow: 0 0 8px var(--color-back);
-        }
-
-        .right {
-            transform: rotateY(90deg) translateZ(var(--half-size));
-            border-color: var(--color-right);
-            box-shadow: 0 0 8px var(--color-right);
-        }
-
-        .left {
-            transform: rotateY(-90deg) translateZ(var(--half-size));
-            border-color: var(--color-left);
-            box-shadow: 0 0 8px var(--color-left);
-        }
-
-        .top {
-            transform: rotateX(90deg) translateZ(var(--half-size));
-            border-color: var(--color-top);
-            box-shadow: 0 0 8px var(--color-top);
-        }
-
-        .bottom {
-            transform: rotateX(-90deg) translateZ(var(--half-size));
-            border-color: var(--color-bottom);
-            box-shadow: 0 0 8px var(--color-bottom);
-        }
-
-        .cube .label {
-            font-size: 14px;
-            font-weight: bold;
-            margin-bottom: 5px;
-            text-align: center;
-        }
-
-        .cube .value {
-            font-size: 24px;
-            font-weight: 1000;
-            text-align: center;
-        }
-
-        .cube .details {
-            font-size: 14px;
-            opacity: 0.7;
-        }
-
-        .front .label,
-        .front .value {
-            color: var(--color-front);
-        }
-
-        .right .label,
-        .right .value {
-            color: var(--color-right);
-        }
-
-        .back .label,
-        .back .value {
-            color: var(--color-back);
-        }
-
-        .left .label,
-        .left .value {
-            color: var(--color-left);
-        }
-
-        .top .label,
-        .top .value {
-            color: var(--color-top);
-        }
-
-        .bottom .label,
-        .bottom .value {
-            color: var(--color-bottom);
-        }
-
-        /* --- Buttons & Panels --- */
-        .toggle-panel-btn {
-            position: fixed;
-            top: 5px;
-            left: 175px;
-            z-index: 1000;
-            background: linear-gradient(185deg, rgba(87, 192, 2, 0.379), rgba(118, 3, 212, 0.664));
-            color: rgb(246, 148, 0);
-            border: none;
-            padding: 2px 5px;
-            border-radius: 50px;
-            font-weight: 900;
-            font-size: 0.85rem;
-            cursor: pointer;
-            box-shadow: 0 4px 15px rgba(36, 3, 225, 0.44), inset 0 0 10px rgba(185, 1, 1, 0.489);
-            transition: all 0.3s ease;
-            width: 45px;
-            height: 45px;
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
-        }
-
-        .toggle-panel-btn:hover {
-            transform: scale(1.05);
-            box-shadow: 0 6px 20px rgba(0, 12, 234, 0.708);
-            height: 50px;
-            width: 100px;
-            background: linear-gradient(135deg, rgba(73, 106, 0, 0.775), rgba(104, 0, 97, 0.814));
-        }
-
-        .close-btn {
-            background: rgba(255, 255, 255, 0.1);
-            border: none;
-            color: white;
-            font-size: 1.2rem;
-            cursor: pointer;
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: background 0.2s;
-        }
-
-        .close-btn:hover {
-            background: rgba(255, 45, 45, 0.4);
-        }
-
-        .cyber-panel {
-            background: rgba(8, 6, 31, 0.907);
-            width: 90%;
-            max-width: 410px;
-            padding: 15px;
-            border-radius: 55px 0 0 55px;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            box-shadow: -10px 0 35px rgba(101, 36, 0, 0.742);
-            position: fixed;
-            top: 0;
-            right: -480px;
-            height: auto;
-            box-sizing: border-box;
-            overflow-y: auto;
-            transition: right 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-            z-index: 999;
-        }
-
-        .cyber-panel.open {
-            right: 0;
-            margin-right: 20px;
-        }
-
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 2px;
-            gap: 1px;
-        }
-
-        .live-tag {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-weight: 900;
-            font-size: 0.8rem;
-        }
-
-        #status-dot {
-            width: 10px;
-            height: 10px;
-            background: #38ef00;
-            border-radius: 50%;
-            box-shadow: 0 0 15px #020154;
-            animation: pulse 1.5s infinite;
-        }
-
-        @keyframes pulse {
-
-            0%,
-            100% {
-                opacity: 1;
-            }
-
-            50% {
-                opacity: 0.4;
-            }
-        }
-
-        .title {
-            color: var(--gold-main);
-            font-weight: 900;
-            font-size: 0.85rem;
-            flex-grow: 1;
-            text-align: left;
-        }
-
-        .section-label {
-            font-size: 0.6rem;
-            color: #2113ec;
-            margin: 18px 0 10px;
-            font-weight: 900;
-            display: flex;
-            justify-content: flex-end;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .section-label::after {
-            content: "";
-            width: 1px;
-            height: 12px;
-            background: #93c572;
-            border-radius: 4px;
-            box-shadow: 0 0 8px rgba(147, 197, 114, 0.5);
-        }
-
-        /* --- Cards & Grids --- */
-        .royale-card {
-            background: linear-gradient(to left, var(--pistachio), var(--royal-purple));
-            border-radius: 24px;
-            padding: 10px 4px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            position: relative;
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-bottom: 3px solid rgba(0, 0, 0, 0.4);
-            box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.15), 0 6px 15px rgba(0, 0, 0, 0.3);
-            transition: all 0.1s ease;
-            cursor: pointer;
-        }
-
-        .royale-card:active {
-            transform: translateY(2px);
-            border-bottom-width: 1px;
-            box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.1);
-        }
-
-        .grid-3 {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-        }
-
-        .grid-2 {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-        }
-
-        .label {
-            font-size: 0.5rem;
-            color: rgb(255, 162, 2);
-            font-weight: 800;
-            margin-bottom: 2px;
-            text-transform: uppercase;
-        }
-
-        .value {
-            font-size: 0.95rem;
-            font-weight: 900;
-            color: #fff;
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
-        }
-
-        .change {
-            font-size: 0.6rem;
-            font-weight: 800;
-            margin-top: 4px;
-        }
-
-        .up {
-            color: var(--up-green);
-        }
-
-        .down {
-            color: var(--down-red);
-        }
-
-        .gold-v {
-            color: var(--gold-main);
-        }
-
-        .footer {
-            text-align: center;
-            margin-top: 20px;
-            font-size: 0.45rem;
-            color: rgba(255, 255, 255, 0.1);
-            letter-spacing: 2px;
-        }
-
-        /* --- Layout & Chart Main Content --- */
-        .main-content {
-            display: flex;
-            flex: 1;
-            position: relative;
-            overflow: hidden;
-            width: 100%;
-            height: calc(100vh - 45px);
-        }
-
-        #chart-container {
-            flex-grow: 1;
-            position: absolute;
-            direction: ltr;
-            width: 100%;
-            height: 100%;
-            cursor: crosshair;
-        }
-
-        .right-info-panel {
-            position: absolute;
-            right: 10px;
-            top: 5px;
-            z-index: 110;
-            width: auto;
-            max-width: 180px;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            pointer-events: none;
-        }
-
-        .info-card {
-            background: linear-gradient(135deg, rgba(162, 1, 190, 0.481), rgba(16, 165, 2, 0.525));
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
-            border: none;
-            border-radius: 12px;
-            width: 100%;
-            padding: 6px 10px;
-            text-align: center;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 6px;
-            box-shadow: inset 0 3px 0 rgba(255, 255, 255, 0.597), inset 0 -4px 0 rgba(0, 0, 0, 0.3), 0 6px 15px rgba(53, 39, 118, 0.278);
-        }
-
-        .info-card::after {
-            content: "";
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 50%;
-            background: linear-gradient(to bottom, rgba(255, 255, 255, 0.1), transparent);
-            pointer-events: none;
-        }
-
-        .info-card .label {
-            font-size: .85rem;
-            color: #f67002;
-            display: block;
-            font-weight: bold;
-            text-shadow: 0 1px 2px rgb(0, 0, 0);
-            position: relative;
-            z-index: 2;
-        }
-
-        .info-card .value {
-            font-size: 0.95rem;
-            font-weight: 750;
-            color: #ffe100;
-            text-shadow: 0 2px 4px rgb(3, 1, 19);
-            position: relative;
-            z-index: 2;
-        }
-
-        .gold-label {
-            color: #de5900 !important;
-        }
-
-        .gold-card {
-            border-right: 2px solid #e9e605b5;
-        }
-
-        .separator {
-            width: 1px;
-            height: 100%;
-            background: rgba(14, 174, 33, 0.864);
-            margin: 0 10px;
-        }
-
-        .chart-overlay-info {
-            position: absolute;
-            top: 5px;
-            left: 12px;
-            z-index: 130;
-            min-width: 1px;
-            height: 0px;
-            background: rgba(11, 18, 26, 0.8) !important;
-            backdrop-filter: blur(1px);
-            border: 1px solid rgba(255, 230, 0, 0.3);
-            border-radius: 20px;
-            padding: 3px;
-            box-shadow: 0 4px 20px rgb(186, 12, 255), inset 0 0 15px rgba(140, 0, 255, 0.197);
-        }
-
-        .price-display-group {
-            position: relative;
-            display: inline-block;
-            vertical-align: middle;
-        }
-
-        .overlay-price {
-            font-size: 1rem;
-            font-weight: 900;
-            font-family: 'Courier New', Courier, monospace;
-            color: #fee500;
-            text-shadow: 0 2px 4px rgb(3, 1, 19);
-            display: block;
-        }
-
-        .left-action-buttons {
-            position: relative;
-            display: inline-flex;
-            gap: 0.6px;
-        }
-
-        .overlay-symbol {
-            font-size: 1rem;
-            font-weight: bold;
-            color: #c94d01;
-        }
-
-        .control-btn {
-            background: linear-gradient(135deg, rgba(104, 0, 160, 0.493), rgba(105, 218, 0, 0.488));
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
-            color: #fecb00;
-            width: 38px;
-            height: 38px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            font-size: 1rem;
-            border: none;
-            transition: 0.3s;
-            position: relative;
-            overflow: hidden;
-            box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.4), inset 0 -3px 0 rgba(0, 0, 0, 0.3), 0 4px 10px rgba(0, 0, 0, 0.5), 0 0 5px rgba(254, 229, 0, 0.3);
-        }
-
-        .control-btn::after {
-            content: "";
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 50%;
-            background: linear-gradient(to bottom, rgba(255, 255, 255, 0.15), transparent);
-            pointer-events: none;
-        }
-
-        .control-btn:hover {
-            transform: scale(1.1) translateY(-2px);
-            box-shadow: inset 0 2px 0 rgb(149, 255, 0), inset 0 -3px 0 rgb(249, 0, 212), 0 8px 15px rgb(104, 9, 247), 0 0 15px rgb(254, 229, 0);
-        }
-
-        /* --- Drawers & Tables --- */
-        .drawer {
-            position: absolute;
-            top: 85px;
-            left: 15px;
-            z-index: 120;
-            background: rgba(11, 18, 26, 0.95);
-            width: 320px;
-            padding: 15px;
-            border-radius: 40px;
-            border: 2px solid var(--accent-color);
-            display: none;
-            flex-direction: column;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
-            max-height: 75vh;
-            overflow-y: auto;
-            direction: rtl;
-        }
-
-        .drawer.active {
-            display: flex;
-        }
-
-        .asset-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 0.85rem;
-            direction: ltr;
-        }
-
-        .asset-table tr {
-            border-bottom: 1px solid #1c1f24;
-            cursor: pointer;
-        }
-
-        .asset-table tr:hover {
-            background: #006108;
-        }
-
-        .asset-table td {
-            padding: 10px 5px;
-            text-align: left;
-            color: #f97901;
-        }
-
-        .coin-cell {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-weight: bold;
-            color: var(--accent-color);
-        }
-
-        .coin-cell img {
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-        }
-
-        .category-header {
-            background: rgba(14, 2, 150, 0.451);
-            text-align: center !important;
-            font-size: 0.9rem;
-            color: rgba(255, 255, 255, 0.8);
-            font-weight: bold;
-        }
-
-        input,
-        button,
-        select {
-            background: #6202e939;
-            color: #e2f206da;
-            border: 1px solid var(--border-color);
-            padding: 8px;
-            border-radius: 40px;
-            width: 100%;
-            margin-bottom: 5px;
-        }
-
-        .color-row {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            font-size: 0.85rem;
-            margin-bottom: 8px;
-        }
-
-        .cp {
-            width: 35px !important;
-            height: 25px;
-            padding: 0;
-            border: none;
-            cursor: pointer;
-            background: none;
-        }
-
-        .draw-active {
-            background: var(--danger) !important;
-            color: #fff;
-        }
-
-        ::-webkit-scrollbar {
-            width: 4px;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: var(--accent-color);
-            border-radius: 10px;
-        }
-
-        /* ==========================================================================
-           MEDIA QUERIES (RESPONSIVE & LANDSCAPE)
-           ========================================================================== */
-        @media screen and (orientation: landscape) {
-            .cyber-panel {
-                top: 10px;
-                height: 100vh;
-                /* کل ارتفاع صفحه را پوشش دهد */
-                max-width: 360px;
-                /* برای اشغال فضای کمتر در حالت افقی */
-                border-radius: 0;
-                /* حذف انحنا برای چسبیدن کامل به لبه صفحه */
-                overflow-y: auto;
-                /* فعال شدن اسکرول عمودی برای دسترسی به تمام کارت‌ها */
-            }
-
-            /* تنظیم مجدد دکمه M&D در حالت لندسکاپ برای عدم تداخل */
-            .toggle-panel-btn {
-                top: 5%;
-                left: 10px;
-            }
-
-            body {
-                align-items: flex-start;
-                padding: 0;
-            }
-        }
-
-
-
-        @media (max-width: 600px) {
-            .right-info-panel {
-                right: 5px;
-                top: 3px;
-                max-width: 110px;
-                pointer-events: auto;
-            }
-
-            .info-card {
-                padding: 6px 10px;
-                gap: 4px;
-                border-radius: 8px;
-                flex-direction: column;
-                align-items: center;
-            }
-
-            .info-card .label {
-                font-size: 0.55rem;
-                margin-bottom: 2px;
-            }
-
-            .info-card .value {
-                font-size: 0.75rem;
-            }
-
-            #cube-container {
-                right: 160px;
-                top: 30px;
-                transform: scale(0.4);
-            }
-
-            .separator {
-                width: 60%;
-                height: 1px;
-                background: rgba(191, 255, 1, 0);
-                margin: 2px auto;
-                opacity: 0.3;
-            }
-
-            .chart-overlay-info {
-                left: 1px;
-                max-width: calc(100% - 10px);
-                padding: 4px 8px;
-            }
-
-            .drawer {
-                width: 280px;
-                left: 5px;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="style.css">
+    <title>Esi site </title>
 </head>
 
 <body>
 
-    <button class="toggle-panel-btn" onclick="togglePanel()" style="color: #058001;">M&D</button>
+
+    <button class="toggle-panel-btn" onclick="togglePanel()" style="color: #ffe100;">M&D</button>
+    <div id="hover-box" class="hover-info-box">
+        <div style="font-weight: bold; color: var(--accent-color); margin-bottom: 5px;">Market & Data</div>
+        <div style="font-size: 0.75rem; color: var(--text-secondary);">
+            <button>
+                <div class="clock-container">
+                    <div class="time-display" id="clock">00:00:00</div>
+
+                    <div class="divider"></div>
+
+                    <div class="date-row">
+                        <div class="shamsi-date" id="shamsi">۱۴۰۵/۰۳/۱۹</div>
+                        <div class="gregorian-date" id="gregorian">2026-06-09</div>
+                    </div>
+                </div>
+            </button>
+            پنل نمایش قیمتهای جهانی بازارهای بزرگ
+        </div>
+    </div>
 
     <div class="cyber-panel" id="warRoomPanel">
         <div class="header">
-            <div class="live-tag">LIVE <div id="status-dot"></div>
+            <div class="section-label-panel">LIVE <div id="status-dot"></div>
             </div>
-            <div class="title">ROOM V12</div>
+            <div class="section-label-panel">ROOM V12</div>
         </div>
 
-        <div class="section-label">$ & GOLD</div>
+
+        <div class="section-label-panel">Gold & $</div>
         <div class="grid-3">
             <div class="royale-card">
-                <span class="label">PAXG/USD</span>
-                <span id="paxg-price" class="value">--</span>
+                <span class="section-label-panel">PAXG/USD</span>
+                <span id="paxg-price" class="section-value-pane">--</span>
                 <span id="paxg-chg" class="change">--</span>
             </div>
             <div class="royale-card">
-                <span class="label">GRAM/TL</span>
+                <span class="section-label-panel">GRAM/TL</span>
                 <span id="gram-try" class="value gold-v" style="color: #1fff02;">--</span>
                 <span class="change" style="color:rgb(239, 247, 1)">GOLD</span>
             </div>
             <div class="royale-card">
-                <span class="label">USDT/TRY</span>
-                <span id="usdt-try" class="value" style="color: #47f906;">--</span>
+                <span class="section-label-panel">USDT/TRY</span>
+                <span id="usdt-try" class="section-value-panel">--</span>
                 <span id="usdt-chg" class="change">--</span>
             </div>
         </div>
 
-        <div class="section-label">GLOBAL</div>
+        <div class="section-label-panel">GLOBAL</div>
         <div class="grid-3">
-            <div class="royale-card" style="border-bottom-color: var(--none-blue);">
-                <span class="label">DXY INDEX</span>
-                <span id="dxy-price" class="value" style="color: var(--none-blue);">--</span>
+            <div class="royale-card">
+                <span class="section-label-panel">DXY INDEX</span>
+                <span id="dxy-price" class="section-value-panel" style="color: var(--none-blue);">--</span>
                 <span id="dxy-chg" class="change">--</span>
             </div>
             <div class="royale-card">
-                <span class="label">SILVER/USD</span>
-                <span id="silver-price" class="value gold-v">--</span>
+                <span class="section-label-panel">SILVER/USD</span>
+                <span id="silver-price" class="section-value-panel">--</span>
                 <span id="silver-chg" class="change">--</span>
             </div>
             <div class="royale-card">
-                <span class="label">BRENT OIL</span>
-                <span id="oil-price" class="value" style="color: #ff9500;">--</span>
+                <span class="section-label-panel">BRENT OIL</span>
+                <span id="oil-price" class="section-value-panel">--</span>
                 <span id="oil-chg" class="change">--</span>
             </div>
         </div>
 
-        <div class="section-label">NASDAQ & S&P</div>
+        <div class="section-label-panel">NASDAQ & SP</div>
         <div class="grid-2">
-            <div class="royale-card"
-                style="background: linear-gradient(to right, rgba(0, 210, 255, 0.1), var(--royal-purple));">
-                <span class="label">NASDAQ 100</span>
-                <span id="nasdaq-price" class="value">--</span>
+            <div class="royale-card">
+                <span class="section-label-panel">NASDAQ 100</span>
+                <span id="nasdaq-price" class="section-value-panel">--</span>
                 <span id="nasdaq-chg" class="change">--</span>
             </div>
-            <div class="royale-card"
-                style="background: linear-gradient(to left, rgba(255, 77, 77, 0.1), var(--royal-purple));">
-                <span class="label">S&P 500</span>
-                <span id="sp500-price" class="value">--</span>
+            <div class="royale-card">
+                <span class="section-label-panel">S&P 500</span>
+                <span id="sp500-price" class="section-value-panel">--</span>
                 <span id="sp500-chg" class="change">--</span>
             </div>
         </div>
 
-        <div class="section-label">CRYPTO MAJORS</div>
+        <div class="section-label-panel">CRYPTO MAJORS</div>
         <div class="grid-3">
             <div class="royale-card">
-                <span class="label">BITCOIN</span>
-                <span id="btc-price" class="value" style="color:#ff9500;">--</span>
+                <span class="section-label-panel">BITCOIN</span>
+                <span id="btc-price" class="section-value-panel">--</span>
                 <span id="btc-chg" class="change">--</span>
             </div>
             <div class="royale-card">
-                <span class="label">ETHEREUM</span>
-                <span id="eth-price" class="value" style="color:#c994ff;">--</span>
+                <span class="section-label-panel">ETHEREUM</span>
+                <span id="eth-price" class="section-value-panel">--</span>
                 <span id="eth-chg" class="change">--</span>
             </div>
             <div class="royale-card">
-                <span class="label">SOLANA</span>
-                <span id="sol-price" class="value">--</span>
+                <span class="section-label-panel">SOLANA</span>
+                <span id="sol-price" class="section-value-panel">--</span>
                 <span id="sol-chg" class="change">--</span>
             </div>
         </div>
 
-        <div class="section-label">MARKET STATS</div>
+        <div class="section-label-panel">MARKET STATS</div>
         <div class="grid-2">
-            <div class="royale-card"><span class="label">TOTAL MCAP</span><span id="total-mcap"
-                    class="value gold-v">--</span></div>
-            <div class="royale-card"><span class="label">FEAR & GREED</span><span id="fng" class="value">--</span></div>
-            <div class="royale-card"><span class="label">BTC DOM</span><span id="btc-Bdom" class="value">--</span></div>
-            <div class="royale-card"><span class="label">BTC MCAP</span><span id="btc-mcap"
-                    class="value gold-v">--</span></div>
+            <div class="royale-card">
+                <span class="section-label-panel">TOTAL MCAP</span>
+                <span id="total-mcap" class="section-value-panel">--</span>
+            </div>
+            <div class="royale-card">
+                <span class="section-label-panel">FEAR & GREED</span>
+                <span id="fng" class="section-value-panel">--</span>
+            </div>
+            <div class="royale-card">
+                <span class="section-label-panel">BTC DOM</span>
+                <span id="btc-dom" class="section-value-panel">--</span>
+            </div>
+            <div class="royale-card">
+                <span class="section-label-panel">BTC MCAP</span>
+                <span id="btc-mcap" class="section-value-panel">--</span>
+            </div>
         </div>
 
-        <div class="footer">Version 12.5</div>
+        <div class="footer">Version
+            12.5</div>
     </div>
 
-    <div class="main-content">
-        <div class="right-info-panel">
-            <div class="info-card combined-panel">
-                <div class="stat-item">
-                    <span class="label">F&G</span>
-                    <span id="fg-index" class="value">--</span>
-                </div>
-                <div class="separator"></div>
-                <div class="stat-item">
-                    <span class="label">BTC.D</span>
-                    <span id="btc-dom" class="value">--%</span>
-                </div>
-            </div>
-            <div class="info-card gold-card">
-                <div class="stat-item">
-                    <span class="label gold-label">GOLD (PAXG)</span>
-                    <span id="gold-price" class="value">--</span>
-                </div>
-                <div class="price-display-group">
-                    <span id="overlay-sym" class="overlay-symbol">BTC/USDT</span>
-                    <span id="overlay-price" class="overlay-price">0.00</span>
-                    <div id="overlay-change" style="font-size: 0.85rem; font-weight: bold;">0.00%</div>
-                </div>
-            </div>
 
-            <div id="cube-container">
-                <div class="cube">
-                    <div class="face front">
-                        <div class="label">PRICE</div>
-                        <div id="cube-price" class="value">--</div>
-                        <div id="cube-sym" class="details">BTC/USDT</div>
-                    </div>
-                    <div class="face back">
-                        <div class="label">CHANGE</div>
-                        <div id="cube-change" class="value">--</div>
-                        <div class="details">24h Percent</div>
-                    </div>
-                    <div class="face right">
-                        <div class="label">DOMINANCE</div>
-                        <div id="cube-dom" class="value">--</div>
-                        <div class="details">BTC.D</div>
-                    </div>
-                    <div class="face left">
-                        <div class="label">F&G INDEX</div>
-                        <div id="cube-fg" class="value">--</div>
-                        <div class="details">F&G</div>
-                    </div>
-                    <div class="face top">
-                        <div class="label">TIMEFRAME</div>
-                        <div id="cube-tf" class="value">1D</div>
-                        <div class="details">Interval</div>
-                    </div>
-                    <div class="face bottom">
-                        <div class="label">SYSTEM</div>
-                        <div class="value">LIVE</div>
-                        <div class="details">ESI V 38</div>
+    <div class="right-info-panel">
+        <div class="info-card combined-panel">
+            <div class="stat-item">
+                <span class="label">F&G</span>
+                <span id="fg-index" class="section-value-panel">--</span>
+                <div class="separator">
+                    <div class="stat-item">
+                        <span class="label">BTC.D</span>
+                        <span id="btc-Rdom" class="section-value-panel">--%</span>
+                        <div class="info-card gold-card">
+                            <div class="stat-item">
+                                <span class="label gold-label">GOLD
+                                    (PAXG)</span>
+                                <span id="gold-price" class="section-value-panel">--</span>
+                                <div class="price-display-group">
+                                    <span id="overlay-sym" class="overlay-symbol">btc/usdt</span>
+                                    <span id="overlay-price" class="overlay-price">0.00</span>
+                                    <div id="overlay-change"> 0.00%</div>
+
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div id="chart-container">
-            <div class="chart-overlay-info">
-                <div class="left-action-buttons">
-                    <button class="control-btn" onclick="toggleDrawer('settings-drawer')" title="تنظیمات"><i
-                            class="fas fa-cog"></i></button>
-                    <button class="control-btn" onclick="toggleDrawer('pair-drawer')" title="جفت‌ارزهای نسبی"><i
-                            class="fas fa-exchange-alt"></i></button>
-                    <button class="control-btn" onclick="toggleDrawer('coin-drawer')" title="لیست ۱۰۰ ارز"><i
-                            class="fas fa-list"></i></button>
-                    <button class="control-btn" id="fs-btn" onclick="toggleFullScreen()" title="تمام صفحه"><i
-                            class="fas fa-expand"></i></button>
+        <div id="cube-container">
+            <div class="cube">
+                <div class="face front">
+                    <div class="label">PRICE</div>
+                    <div id="cube-price" class="value">--</div>
+                    <div id="cube-sym" class="details">BTC/USDT</div>
+                </div>
+                <div class="face back">
+                    <div class="label">CHANGE</div>
+                    <div id="cube-change" class="value">--</div>
+                    <div class="details">24h Percent</div>
+                </div>
+                <div class="face right">
+                    <div class="label">DOMINANCE</div>
+                    <div id="cube-dom" class="value">--</div>
+                    <div class="details">BTC.D</div>
+                </div>
+                <div class="face left">
+                    <div class="label">F&G INDEX</div>
+                    <div id="cube-fg" class="value">--</div>
+                    <div class="details">F&G</div>
+                </div>
+                <div class="face top">
+                    <div class="label">TIMEFRAME</div>
+                    <div id="cube-tf" class="value">1D</div>
+                    <div class="details">Interval</div>
+                </div>
+                <div class="face bottom">
+                    <div class="label">SYSTEM</div>
+                    <div class="value">LIVE</div>
+                    <div class="details">V 12.5</div>
                 </div>
             </div>
-        </div>
-
-        <div id="settings-drawer" class="drawer">
-            <div class="section-label">جستجو</div>
-            <input type="text" id="search-input" placeholder="مثلاً ETHBTC..."
-                onkeydown="if(event.key==='Enter') updateSymbol(this.value.toUpperCase())">
-            <select id="tf-select" onchange="changeTF(this.value)">
-                <option value="15m">15m</option>
-                <option value="1h">1h</option>
-                <option value="4h">4h</option>
-                <option value="1d" selected>1d</option>
-                <option value="1w">1w</option>
-                <option value="1M">1M</option>
-            </select>
-
-            <div class="section-label">اندیکاتورها</div>
-            <label style="font-size: 0.7rem;"><input type="checkbox" id="show-bb" onchange="updateVisibility()">
-                Bollinger Bands</label>
-            <label style="font-size: 0.7rem;"><input type="checkbox" id="show-rsi" onchange="updateVisibility()"> RSI
-                (14)</label>
-
-            <div class="section-label">ابزار ترسیم</div>
-            <div class="color-row">رنگ خط: <input type="color" id="draw-color" value="#f0b90b" class="cp"></div>
-            <button id="draw-btn" onclick="toggleDrawingMode()">فعال کردن ترسیم</button>
-            <button onclick="undoLastLine()">برگشت (Undo)</button>
-            <button onclick="clearLines()" style="color: var(--danger)">پاک کردن همه</button>
-
-            <div class="section-label">استایل EMA</div>
-            <div class="color-row">EMA 7 <input type="color" id="c7" value="#FFD700" class="cp"
-                    onchange="updateEMAStyle()"></div>
-            <div class="color-row">EMA 30 <input type="color" id="c30" value="#E040FB" class="cp"
-                    onchange="updateEMAStyle()"></div>
-            <div class="color-row">EMA 200 <input type="color" id="c200" value="#FFFFFF" class="cp"
-                    onchange="updateEMAStyle()"></div>
-        </div>
-
-        <div id="pair-drawer" class="drawer">
-            <div class="section-label" style="text-align: center;">Btc & Eth pair</div>
-            <table class="asset-table">
-                <tbody id="pair-list">
-                    <tr class="category-header">
-                        <td colspan="2">ALTS / BTC</td>
-                    </tr>
-                    <tr onclick="updateSymbol('ETHBTC'); toggleDrawer('pair-drawer')">
-                        <td class="coin-cell"><img
-                                src="https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/eth.png">ETH
-                            / BTC</td>
-                        <td>اتریوم / بیت‌کوین</td>
-                    </tr>
-                    <tr onclick="updateSymbol('SOLBTC'); toggleDrawer('pair-drawer')">
-                        <td class="coin-cell"><img
-                                src="https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/sol.png">SOL
-                            / BTC</td>
-                        <td>سولانا / بیت‌کوین</td>
-                    </tr>
-                    <tr onclick="updateSymbol('XRPBTC'); toggleDrawer('pair-drawer')">
-                        <td class="coin-cell"><img
-                                src="https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/xrp.png">XRP
-                            / BTC</td>
-                        <td>ریپل / بیت‌کوین</td>
-                    </tr>
-                    <tr onclick="updateSymbol('ADA/BTC'); toggleDrawer('pair-drawer')">
-                        <td class="coin-cell"><img
-                                src="https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/ada.png">ADA
-                            / BTC</td>
-                        <td>کاردانو / بیت‌کوین</td>
-                    </tr>
-                    <tr onclick="updateSymbol('UNIBTC'); toggleDrawer('pair-drawer')">
-                        <td class="coin-cell"><img
-                                src="https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/uni.png">UNI
-                            / BTC</td>
-                        <td>یونی‌سواپ / بیت‌کوین</td>
-                    </tr>
-                    <tr onclick="updateSymbol('SUSHIBTC'); toggleDrawer('pair-drawer')">
-                        <td class="coin-cell"><img
-                                src="https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/sushi.png">SUSHI
-                            / BTC</td>
-                        <td>سوشی‌سواپ / بیت‌کوین</td>
-                    </tr>
-                    <tr onclick="updateSymbol('AAVEBTC'); toggleDrawer('pair-drawer')">
-                        <td class="coin-cell"><img
-                                src="https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/aave.png">AAVE
-                            / BTC</td>
-                    <tr onclick="updateSymbol('LINKBTC'); toggleDrawer('pair-drawer')">
-                        <td class="coin-cell"><img
-                                src="https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/link.png">LINK
-                            / BTC</td>
-                        <td>چین‌لینک / بیت‌کوین</td>
-                    </tr>
-                    <tr onclick="updateSymbol('MATICBTC'); toggleDrawer('pair-drawer')">
-                        <td class="coin-cell"><img
-                                src="https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/matic.png">MATIC
-                            / BTC</td>
-                        <td>پول‌گان / بیت‌کوین</td>
-                    </tr>
-                    <tr onclick="updateSymbol('AVAXBTC'); toggleDrawer('pair-drawer')">
-                        <td class="coin-cell"><img
-                                src="https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/avax.png">AVAX
-                            / BTC</td>
-                        <td>آواکس / بیت‌کوین</td>
-                    </tr>
-                    <tr class="category-header">
-                        <td colspan="2">ALTS / ETH</td>
-                    </tr>
-                    <tr onclick="updateSymbol('SOLETH'); toggleDrawer('pair-drawer')">
-                        <td class="coin-cell"><img
-                                src="https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/sol.png">SOL
-                            / ETH</td>
-                        <td>سولانا / اتریوم</td>
-                    </tr>
-                    <tr onclick="updateSymbol('XRPETH'); toggleDrawer('pair-drawer')">
-                        <td class="coin-cell"><img
-                                src="https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/xrp.png">XRP
-                            / ETH</td>
-                        <td>ریپل / اتریوم</td>
-                    </tr>
-                    <tr onclick="updateSymbol('ADAETH'); toggleDrawer('pair-drawer')">
-                        <td class="coin-cell"><img
-                                src="https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/ada.png">ADA
-                            / ETH</td>
-                        <td>کاردانو / اتریوم</td>
-                    </tr>
-                    <tr onclick="updateSymbol('LINKETH'); toggleDrawer('pair-drawer')">
-                        <td class="coin-cell"><img
-                                src="https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/link.png">LINK
-                            / ETH</td>
-                        <td>چین‌لینک / اتریوم</td>
-                    </tr>
-                    <tr onclick="updateSymbol('MATICETH'); toggleDrawer('pair-drawer')">
-                        <td class="coin-cell"><img
-                                src="https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/matic.png">MATIC
-                            / ETH</td>
-                        <td>پول‌گان / اتریوم</td>
-                    </tr>
-                    <tr onclick="updateSymbol('AVAXETH'); toggleDrawer('pair-drawer')">
-                        <td class="coin-cell"><img
-                                src="https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/avax.png">AVAX
-                            / ETH</td>
-                        <td>آواکس / اتریوم</td>
-                    </tr>
-                    <tr onclick="updateSymbol('UNIETH'); toggleDrawer('pair-drawer')">
-                        <td class="coin-cell"><img
-                                src="https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/uni.png">UNI
-                            / ETH</td>
-                        <td>یونی‌سواپ / اتریوم</td>
-                    </tr>
-                    <tr onclick="updateSymbol('SUSHIETH'); toggleDrawer('pair-drawer')">
-                        <td class="coin-cell"><img
-                                src="https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/sushi.png">SUSHI
-                            / ETH</td>
-                        <td>سوشی‌سواپ / اتریوم</td>
-                    </tr>
-                    <tr onclick="updateSymbol('AAVEETH'); toggleDrawer('pair-drawer')">
-                        <td class="coin-cell"><img
-                                src="https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/aave.png">AAVE
-                            / ETH</td>
-                        <td>آوه / اتریوم</td>
-                    </tr>
-                    <tr onclick="updateSymbol('COMPETH'); toggleDrawer('pair-drawer')">
-                        <td class="coin-cell"><img
-                                src="https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/comp.png">COMP
-                            / ETH</td>
-                        <td>کامپوند / اتریوم</td>
-                    </tr>
-                    <tr onclick="updateSymbol('MKRETH'); toggleDrawer('pair-drawer')">
-                        <td class="coin-cell"><img
-                                src="https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/mkr.png">MKR
-                            / ETH</td>
-                        <td>میکر / اتریوم</td>
-                    </tr>
-                    <tr onclick="updateSymbol('SNXETH'); toggleDrawer('pair-drawer')">
-                        <td class="coin-cell"><img
-                                src="https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/snx.png">SNX
-                            / ETH</td>
-                        <td>سینتتیکس / اتریوم</td>
-                    </tr>
-
-                </tbody>
-            </table>
-        </div>
-
-        <div id="coin-drawer" class="drawer">
-            <div class="section-label" style="text-align: center;">Top Coins by Trading Volume</div>
-            <table class="asset-table">
-                <tbody id="top-coins-list"></tbody>
-            </table>
         </div>
     </div>
+
+    <div id="chart-container">
+        <div class="chart-overlay-info">
+            <div class="left-action-buttons">
+                <button class="control-btn" onclick="toggleDrawer('settings-drawer')" title="تنظیمات settings"><i
+                        class="fas fa-cog"></i></button>
+                <button class="control-btn" onclick="toggleDrawer('pair-drawer')"
+                    title="جفت‌ارزهای پیر بیت و اتریوم btc&eth pair"><i class="fas fa-exchange-alt"></i></button>
+                <button class="control-btn" onclick="toggleDrawer('coin-drawer')"
+                    title="للیست  صد ارز برتر top 100 coins"><i class="fas fa-list"></i></button>
+                <button class="control-btn" id="fs-btn" onclick="toggleFullScreen()" title="تمام صفحه full screen"><i
+                        class="fas fa-expand"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <div id="settings-drawer" class="drawer">
+
+        <div class="section-label">Theme</div>
+        <select id="theme-select" onchange="changeTheme(this.value)">
+            <option value="default">تم سازنده(Cyber Neon)</option>
+            <option value="forest">جنگلی (Deep Forest)</option>
+            <option value="obsidian">عقیق(Royal Obsidian)</option>
+            <option value="slate">سنگ‌لاخی (Dark Slate)</option>
+            <option value="dusk">غروب سایبری (Cyber Dusk)</option>
+            <option value="snow">تم برفی(Snow White) </option>
+            <option value="sand">سنگ و شن (Desert Sand) </option>
+            <option value="rushan">تم روش(lightly) </option>
+        </select>
+
+        <div class="section-label">Search coins</div>
+        <input type="text" id="search-input" placeholder="example: ETHBTC..."
+            onkeydown="if(event.key==='Enter') updateSymbol(this.value.toUpperCase())">
+        <select id="tf-select" onchange="changeTF(this.value)">
+            <option value="15m">15m</option>
+            <option value="1h">1h</option>
+            <option value="4h">4h</option>
+            <option value="1d" selected>1d</option>
+            <option value="1w">1w</option>
+            <option value="1M">1M</option>
+        </select>
+
+        <div class="section-label">Indicators</div>
+        <label><input type="checkbox" id="show-bb" onchange="updateVisibility()"> Bollinger Bands</label>
+        <label><input type="checkbox" id="show-rsi" onchange="updateVisibility()"> RSI (14)</label>
+
+        <div class="section-label">Drawing Tools</div>
+        <div class="color-row">Line Color: <input type="color" id="draw-color" value="#7e2f00" class="cp"></div>
+        <button id="draw-btn" onclick="toggleDrawingMode()">Enable Drawing</button>
+        <button onclick="undoLastLine()">Undo</button>
+        <button onclick="clearLines()" style="color: var(--danger)">Clear All</button>
+
+        <div class="section-label">EMA Style</div>
+        <div class="color-row">EMA 7 <input type="color" id="c7" value="#FFD700" class="cp" onchange="updateEMAStyle()">
+        </div>
+        <div class="color-row">EMA 30 <input type="color" id="c30" value="#E040FB" class="cp"
+                onchange="updateEMAStyle()"></div>
+        <div class="color-row">EMA 200 <input type="color" id="c200" value="#FFFFFF" class="cp"
+                onchange="updateEMAStyle()"></div>
+    </div>
+
+    <div id="pair-drawer" class="drawer">
+        <div class="section-label" style="text-align: center;">Btc & Eth pair</div>
+        <table class="asset-table">
+            <tbody id="pair-list">
+                <tr class="category-header">
+                    <td colspan="2">ALTS / BTC</td>
+                </tr>
+                <tr onclick="updateSymbol('ETHBTC'); toggleDrawer('pair-drawer')">
+                    <td class="coin-cell"><img
+                            src="https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/eth.png">ETH
+                        / BTC</td>
+                    <td>اتریوم / بیت‌کوین</td>
+                </tr>
+                <tr onclick="updateSymbol('SOLBTC'); toggleDrawer('pair-drawer')">
+                    <td class="coin-cell"><img
+                            src="https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/sol.png">SOL
+                        / BTC</td>
+                    <td>سولانا / بیت‌کوین</td>
+                </tr>
+                <tr onclick="updateSymbol('XRPBTC'); toggleDrawer('pair-drawer')">
+                    <td class="coin-cell"><img
+                            src="https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/xrp.png">XRP
+                        / BTC</td>
+                    <td>ریپل / بیت‌کوین</td>
+                </tr>
+                <tr onclick="updateSymbol('BNBBTC'); toggleDrawer('pair-drawer')">
+                    <td class="coin-cell"><img
+                            src="https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/bnb.png">BNB
+                        / BTC</td>
+                    <td>بایننس / بیت‌کوین</td>
+                </tr>
+                <tr onclick="updateSymbol('ADABTC'); toggleDrawer('pair-drawer')">
+                    <td class="coin-cell"><img
+                            src="https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/ada.png">ADA
+                        / BTC</td>
+                    <td>کاردانو / بیت‌کوین</td>
+                </tr>
+                <tr onclick="updateSymbol('DOGEBTC'); toggleDrawer('pair-drawer')">
+                    <td class="coin-cell"><img
+                            src="https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/doge.png">DOGE
+                        / BTC</td>
+                    <td>دوج / بیت‌کوین</td>
+                </tr>
+                <tr onclick="updateSymbol('LINKBTC'); toggleDrawer('pair-drawer')">
+                    <td class="coin-cell"><img
+                            src="https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/link.png">LINK
+                        / BTC</td>
+                    <td>لینک / بیت‌کوین</td>
+                </tr>
+                <tr onclick="updateSymbol('DOTBTC'); toggleDrawer('pair-drawer')">
+                    <td class="coin-cell"><img
+                            src="https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/dot.png">DOT
+                        / BTC</td>
+                    <td>پولکادات / بیت‌کوین</td>
+                </tr>
+                <tr onclick="updateSymbol('AVAXBTC'); toggleDrawer('pair-drawer')">
+                    <td class="coin-cell"><img
+                            src="https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/avax.png">AVAX
+                        / BTC</td>
+                    <td>آوالانچ / بیت‌کوین</td>
+                </tr>
+                <tr onclick="updateSymbol('NEARBTC'); toggleDrawer('pair-drawer')">
+                    <td class="coin-cell"><img
+                            src="https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/near.png">NEAR
+                        / BTC</td>
+                    <td>نیر / بیت‌کوین</td>
+                </tr>
+                <tr onclick="updateSymbol('MATICBTC'); toggleDrawer('pair-drawer')">
+                    <td class="coin-cell"><img
+                            src="https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/matic.png">MATIC
+                        / BTC</td>
+                    <td>متیک / بیت‌کوین</td>
+                </tr>
+                <tr onclick="updateSymbol('SHIBBTC'); toggleDrawer('pair-drawer')">
+                    <td class="coin-cell"><img
+                            src="https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/shib.png">SHIB
+                        / BTC</td>
+                    <td>شیبا / بیت‌کوین</td>
+                </tr>
+                <tr class="category-header">
+                    <td colspan="2">ALTS / ETH</td>
+                </tr>
+                <tr onclick="updateSymbol('SOLETH'); toggleDrawer('pair-drawer')">
+                    <td class="coin-cell"><img
+                            src="https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/sol.png">SOL
+                        / ETH</td>
+                    <td>سولانا / اتریوم</td>
+                </tr>
+                <tr onclick="updateSymbol('BNBETH'); toggleDrawer('pair-drawer')">
+                    <td class="coin-cell"><img
+                            src="https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/bnb.png">BNB
+                        / ETH</td>
+                    <td>بایننس / اتریوم</td>
+                </tr>
+                <tr onclick="updateSymbol('LDOETH'); toggleDrawer('pair-drawer')">
+                    <td class="coin-cell"><img
+                            src="https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/ldo.png">LDO
+                        / ETH</td>
+                    <td>لیدو / اتریوم</td>
+                </tr>
+                <tr onclick="updateSymbol('ARBETH'); toggleDrawer('pair-drawer')">
+                    <td class="coin-cell"><img
+                            src="https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/arb.png">ARB
+                        / ETH</td>
+                    <td>آربیتروم / اتریوم</td>
+                </tr>
+                <tr onclick="updateSymbol('OPETH'); toggleDrawer('pair-drawer')">
+                    <td class="coin-cell"><img
+                            src="https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/op.png">OP
+                        / ETH</td>
+                    <td>اپتیمیسم / اتریوم</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div id="coin-drawer" class="drawer">
+        <div class="section-label" style="text-align: center;">Top Coins by Trading Volume</div>
+        <table class="asset-table">
+            <tbody id="top-coins-list"></tbody>
+        </table>
+    </div>
+    </div>
+
 
     <script>
         let chart, candleSeries, volumeSeries, ema7, ema30, ema200, socket;
@@ -1161,16 +414,93 @@
             }
         }
 
+        function changeTheme(themeName) {
+            if (themeName === 'default') {
+                document.documentElement.removeAttribute('data-theme');
+            } else {
+                document.documentElement.setAttribute('data-theme', themeName);
+            }
+            localStorage.setItem('esi-trading-theme', themeName);
+
+            const selectEl = document.getElementById('theme-select');
+            if (selectEl) selectEl.value = themeName;
+
+            if (chart) {
+                let chartBg = '#0b121a';
+                let gridColor = '#16191e';
+                let textColor = '#d1d4dc';
+
+                if (themeName === 'forest') {
+                    chartBg = '#050f0a';
+                    gridColor = '#0b2115';
+                    textColor = '#a3e2c9';
+                } else if (themeName === 'obsidian') {
+                    chartBg = '#0b0912';
+                    gridColor = '#191426';
+                    textColor = '#e2d5ff';
+                } else if (themeName === 'slate') {
+                    chartBg = '#0f172a';
+                    gridColor = '#1e293b';
+                    textColor = '#e2e8f0';
+                } else if (themeName === 'dusk') {
+                    chartBg = '#140a0a';
+                    gridColor = '#210e0e';
+                    textColor = '#ffd1c2';
+                } else if (themeName === 'snow') {
+                    chartBg = '#f8fafc';
+                    gridColor = '#e2e8f0';
+                    textColor = '#1e293b';
+                } else if (themeName === 'sand') {
+                    chartBg = '#fdfbf7';
+                    gridColor = '#e5e0d8';
+                    textColor = '#453c38';
+                } else if (themeName === 'gemini') {
+                    chartBg = '#f1f5f9';
+                    gridColor = '#cbd5e1';
+                    textColor = '#0f172a';
+                }
+
+                chart.applyOptions({
+                    layout: { backgroundColor: chartBg, textColor: textColor },
+                    grid: { vertLines: { color: gridColor }, horzLines: { color: gridColor } }
+                });
+            }
+        }
+
         function initChart() {
             const container = document.getElementById('chart-container');
+            const savedTheme = localStorage.getItem('esi-trading-theme') || 'default';
+
+            let chartBg = '#0b121a';
+            let gridColor = '#16191e';
+            let textColor = '#d1d4dc';
+
+            if (savedTheme === 'forest') {
+                chartBg = '#050f0a'; gridColor = '#0b2115'; textColor = '#a3e2c9';
+            } else if (savedTheme === 'obsidian') {
+                chartBg = '#0b0912'; gridColor = '#191426'; textColor = '#e2d5ff';
+            } else if (savedTheme === 'slate') {
+                chartBg = '#0f172a'; gridColor = '#1e293b'; textColor = '#e2e8f0';
+            } else if (savedTheme === 'dusk') {
+                chartBg = '#140a0a'; gridColor = '#210e0e'; textColor = '#ffd1c2';
+            } else if (savedTheme === 'snow') {
+                chartBg = '#f8fafc'; gridColor = '#e2e8f0'; textColor = '#1e293b';
+            } else if (savedTheme === 'sand') {
+                chartBg = '#fdfbf7'; gridColor = '#e5e0d8'; textColor = '#453c38';
+            } else if (savedTheme === 'gemini') {
+                chartBg = '#f1f5f9'; gridColor = '#cbd5e1'; textColor = '#0f172a';
+            }
+
             chart = LightweightCharts.createChart(container, {
-                layout: { backgroundColor: '#0b121a', textColor: '#d1d4dc' },
-                grid: { vertLines: { color: '#16191e' }, horzLines: { color: '#16191e' } },
+                layout: { backgroundColor: chartBg, textColor: textColor },
+                grid: { vertLines: { color: gridColor }, horzLines: { color: gridColor } },
                 timeScale: { timeVisible: true, borderVisible: false },
                 width: container.clientWidth, height: container.clientHeight,
                 handleScroll: { vertTouchDrag: true, horzTouchDrag: true },
                 handleScale: { pinch: true, mouseWheel: true }
             });
+
+            changeTheme(savedTheme);
 
             candleSeries = chart.addCandlestickSeries({ upColor: '#16c784', downColor: '#ea3943', borderVisible: false });
             volumeSeries = chart.addHistogramSeries({ color: '#26a69a', priceFormat: { type: 'volume' }, priceScaleId: '', scaleMargins: { top: 0.8, bottom: 0 } });
@@ -1266,12 +596,10 @@
             try {
                 const ticker = await fetch(`https://api.binance.com/api/v3/ticker/24hr?symbol=${symbol}`).then(r => r.json());
                 dailyOpenPrice = parseFloat(ticker.openPrice);
-
                 const dom = await fetch(`https://api.coingecko.com/api/v3/global`).then(r => r.json());
                 const btcDom = dom.data.market_cap_percentage.btc.toFixed(1);
                 document.getElementById('cube-dom').innerText = btcDom + "%";
-                document.getElementById('btc-dom').innerText = btcDom + "%";
-
+                document.getElementById('btc-Rdom').innerText = btcDom + "%";
                 const fg = await fetch(`https://api.alternative.me/fng/?limit=1`).then(r => r.json());
                 document.getElementById('cube-fg').innerText = fg.data[0].value;
                 document.getElementById('fg-index').innerText = fg.data[0].value;
@@ -1293,21 +621,17 @@
                     document.getElementById('cube-price').innerText = "$" + price.toLocaleString();
                     document.getElementById('overlay-price').innerText = price.toLocaleString();
 
-                    if (dailyOpenPrice > 0) {
-                        const changeValNum = ((price - dailyOpenPrice) / dailyOpenPrice * 100);
-                        const changeSign = changeValNum >= 0 ? "+" : "";
-                        const changeVal = changeSign + changeValNum.toFixed(2) + "%";
+                    const changeVal = ((price - dailyOpenPrice) / dailyOpenPrice * 100).toFixed(2) + "%";
+                    document.getElementById('cube-change').innerText = changeVal;
 
-                        document.getElementById('cube-change').innerText = changeVal;
-                        const cel = document.getElementById('overlay-change');
-                        cel.innerText = changeVal;
-                        cel.style.color = (price >= dailyOpenPrice) ? "var(--success)" : "var(--danger)";
-                    }
+                    const cel = document.getElementById('overlay-change');
+                    cel.innerText = changeVal;
+                    cel.style.color = (price >= dailyOpenPrice) ? "var(--success)" : "var(--danger)";
 
                     candleSeries.update({ time: k.t / 1000, open: +k.o, high: +k.h, low: +k.l, close: +k.c });
                 };
 
-            } catch (e) { console.error(e); }
+            } catch (e) { }
         }
 
         const calcEMA = (d, p) => { let k = 2 / (p + 1), ema = [], prev = d[0].close; d.forEach(x => { let val = (x.close * k) + (prev * (1 - k)); ema.push({ time: x.time, value: val }); prev = val; }); return ema; };
@@ -1325,6 +649,7 @@
                 document.getElementById('cube-fg').innerText = fg.data[0].value;
                 document.getElementById('fg-index').innerText = fg.data[0].value;
                 document.getElementById('cube-dom').innerText = dom.data.market_cap_percentage.btc.toFixed(1) + '%';
+                document.getElementById('btc-dom').innerText = ((dom.data.market_cap_change_percentage_24h.btc) / 100).toFixed(2) + '%';
             } catch (e) { console.error('Error fetching external data:', e); }
         }
 
@@ -1362,22 +687,6 @@
             if (chart && container) { chart.applyOptions({ width: container.clientWidth, height: container.clientHeight }); chart.timeScale().fitContent(); }
         });
 
-        initChart();
-        document.addEventListener('click', e => { if (!e.target.closest('.drawer') && !e.target.closest('.control-btn') && !e.target.closest('.chart-overlay-info')) document.querySelectorAll('.drawer').forEach(d => d.classList.remove('active')); });
-
-        async function updateGoldPrice() {
-            try {
-                const response = await fetch('https://api.binance.com/api/v3/ticker/price?symbol=PAXGUSDT');
-                const data = await response.json();
-                const price = parseFloat(data.price).toFixed(1);
-                const goldElement = document.getElementById('gold-price');
-                if (goldElement) goldElement.innerText = "$" + price;
-            } catch (e) { console.error("Error updating gold price:", e); }
-        }
-
-        updateGoldPrice();
-        setInterval(updateGoldPrice, 30000);
-
         function formatChange(val, elementId) {
             const el = document.getElementById(elementId);
             if (!el) return;
@@ -1387,13 +696,7 @@
             el.className = "change " + (num >= 0 ? "up" : "down");
         }
 
-        async function togglePanel() {
-            const panel = document.getElementById('warRoomPanel');
-            if (!panel) return;
-
-            panel.classList.toggle('open');
-            if (!panel.classList.contains('open')) return;
-
+        async function fetchWarRoomData() {
             try {
                 const b_res = await fetch('https://api.binance.com/api/v3/ticker/24hr?symbols=["PAXGUSDT","USDTTRY","BTCUSDT","ETHUSDT","SOLUSDT"]');
                 const b_data = await b_res.json();
@@ -1409,29 +712,30 @@
                 const paxg = getStat("PAXGUSDT");
                 const usdt = getStat("USDTTRY");
 
-                document.getElementById('paxg-price').innerText = Math.floor(paxg.lastPrice).toLocaleString();
-                document.getElementById('btc-price').innerText = Math.floor(btc.lastPrice).toLocaleString();
-                document.getElementById('eth-price').innerText = Math.floor(eth.lastPrice).toLocaleString();
-                document.getElementById('sol-price').innerText = parseFloat(sol.lastPrice).toFixed(1);
-                document.getElementById('usdt-try').innerText = parseFloat(usdt.lastPrice).toFixed(2);
+                if (paxg) document.getElementById('paxg-price').innerText = Math.floor(paxg.lastPrice).toLocaleString();
+                if (btc) document.getElementById('btc-price').innerText = Math.floor(btc.lastPrice).toLocaleString();
+                if (eth) document.getElementById('eth-price').innerText = Math.floor(eth.lastPrice).toLocaleString();
+                if (sol) document.getElementById('sol-price').innerText = parseFloat(sol.lastPrice).toFixed(1);
+                if (usdt) document.getElementById('usdt-try').innerText = parseFloat(usdt.lastPrice).toFixed(2);
 
-                const gramTry = (parseFloat(paxg.lastPrice) * parseFloat(usdt.lastPrice)) / 31.1035;
-                document.getElementById('gram-try').innerText = Math.floor(gramTry).toLocaleString();
+                if (paxg && usdt) {
+                    const gramTry = (parseFloat(paxg.lastPrice) * parseFloat(usdt.lastPrice)) / 31.1035;
+                    document.getElementById('gram-try').innerText = Math.floor(gramTry).toLocaleString();
+                }
 
-                formatChange(paxg.priceChangePercent, 'paxg-chg');
-                formatChange(btc.priceChangePercent, 'btc-chg');
-                formatChange(eth.priceChangePercent, 'eth-chg');
-                formatChange(sol.priceChangePercent, 'sol-chg');
-                formatChange(usdt.priceChangePercent, 'usdt-chg');
+                if (paxg) formatChange(paxg.priceChangePercent, 'paxg-chg');
+                if (btc) formatChange(btc.priceChangePercent, 'btc-chg');
+                if (eth) formatChange(eth.priceChangePercent, 'eth-chg');
+                if (sol) formatChange(sol.priceChangePercent, 'sol-chg');
+                if (usdt) formatChange(usdt.priceChangePercent, 'usdt-chg');
 
                 const tm = g_data.data.total_market_cap.usd;
                 const bd = g_data.data.market_cap_percentage.btc;
                 document.getElementById('total-mcap').innerText = (tm / 1e12).toFixed(2) + "T";
                 document.getElementById('btc-mcap').innerText = ((tm * bd / 100) / 1e12).toFixed(2) + "T";
-                document.getElementById('btc-Bdom').innerText = bd.toFixed(1) + "%";
+                document.getElementById('btc-dom').innerText = bd.toFixed(1) + "%";
                 document.getElementById('fng').innerText = fng_data.data[0].value;
 
-                // Mock Global Market Indices
                 document.getElementById('dxy-price').innerText = "104.42";
                 formatChange("-0.12", 'dxy-chg');
                 document.getElementById('silver-price').innerText = "30.95";
@@ -1443,11 +747,49 @@
                 document.getElementById('sp500-price').innerText = "5,245";
                 formatChange("+0.35", 'sp500-chg');
 
-                document.getElementById('status-dot').style.background = "#00fe04";
+                if (document.getElementById('status-dot')) {
+                    document.getElementById('status-dot').style.background = "#00fe04";
+                }
             } catch (e) {
-                document.getElementById('status-dot').style.background = "red";
+                if (document.getElementById('status-dot')) {
+                    document.getElementById('status-dot').style.background = "red";
+                }
             }
         }
+
+        function togglePanel() {
+            const panel = document.getElementById('warRoomPanel');
+            if (panel) {
+                panel.classList.toggle('open');
+                if (panel.classList.contains('open')) {
+                    fetchWarRoomData();
+                }
+            }
+        }
+
+        async function updateGoldPrice() {
+            try {
+                const response = await fetch('https://api.binance.com/api/v3/ticker/price?symbol=PAXGUSDT');
+                const data = await response.json();
+                const price = parseFloat(data.price).toFixed(1);
+                const goldElement = document.getElementById('gold-price');
+                if (goldElement) goldElement.innerText = "$" + price;
+            } catch (e) { }
+        }
+
+        initChart();
+
+        document.addEventListener('click', e => {
+            if (!e.target.closest('.drawer') && !e.target.closest('.control-btn') && !e.target.closest('.chart-overlay-info')) {
+                document.querySelectorAll('.drawer').forEach(d => d.classList.remove('active'));
+            }
+        });
+
+        updateGoldPrice();
+        setInterval(updateGoldPrice, 30000);
+
+        fetchWarRoomData();
+        setInterval(fetchWarRoomData, 30000);
 
         document.addEventListener('click', function (e) {
             const panel = document.getElementById('warRoomPanel');
@@ -1458,6 +800,77 @@
                 }
             }
         });
+
+
+
+        function updateClock() {
+            const now = new Date();
+
+            // ۱. تنظیم ساعت، دقیقه و ثانیه
+            let hours = String(now.getHours()).padStart(2, '0');
+            let minutes = String(now.getMinutes()).padStart(2, '0');
+            let seconds = String(now.getSeconds()).padStart(2, '0');
+            document.getElementById('clock').innerText = `${hours}:${minutes}:${seconds}`;
+
+            // ۲. تنظیم تاریخ میلادی (YYYY-MM-DD)
+            let year = now.getFullYear();
+            let month = String(now.getMonth() + 1).padStart(2, '0');
+            let day = String(now.getDate()).padStart(2, '0');
+            document.getElementById('gregorian').innerText = `${year}-${month}-${day}`;
+
+            // ۳. محاسبه و تنظیم تاریخ شمسی بدون کتابخانه خارجی
+            const shamsiDate = getShamsiDate(now);
+            document.getElementById('shamsi').innerText = shamsiDate;
+        }
+
+        // تابع سبک و دقیق برای تبدیل میلادی به شمسی
+        function getShamsiDate(date) {
+            const g_days_in_month = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+            const j_days_in_month = [31, 31, 31, 31, 31, 31, 30, 30, 30, 30, 30, 29];
+
+            let gy = date.getFullYear() - 1600;
+            let gm = date.getMonth();
+            let gd = date.getDate() - 1;
+
+            let g_day_no = 365 * gy + Math.floor((gy + 3) / 4) - Math.floor((gy + 99) / 100) + Math.floor((gy + 399) / 400);
+            for (let i = 0; i < gm; ++i) g_day_no += g_days_in_month[i];
+            if (gm > 1 && ((gy % 4 == 0 && gy % 100 != 0) || (gy % 400 == 0))) ++g_day_no;
+            g_day_no += gd;
+
+            let j_day_no = g_day_no - 79;
+            let j_np = Math.floor(j_day_no / 12053);
+            j_day_no %= 12053;
+
+            let jy = 979 + 33 * j_np + 4 * Math.floor(j_day_no / 1461);
+            j_day_no %= 1461;
+
+            if (j_day_no >= 366) {
+                jy += Math.floor((j_day_no - 1) / 365);
+                j_day_no = (j_day_no - 1) % 365;
+            }
+
+            let i;
+            for (i = 0; i < 11 && j_day_no >= j_days_in_month[i]; ++i) {
+                j_day_no -= j_days_in_month[i];
+            }
+            let jm = i + 1;
+            let jd = j_day_no + 1;
+
+            // تبدیل اعداد به فرمت دو رقمی و فارسی کردن (اختیاری)
+            const m = String(jm).padStart(2, '0');
+            const d = String(jd).padStart(2, '0');
+
+            return `${jy}/${m}/${d}`;
+        }
+
+        // اجرای اولیه و تنظیم اینتروال برای آپدیت هر ثانیه
+        updateClock();
+        setInterval(updateClock, 1000);
+
+
+
+
+
     </script>
 </body>
 
